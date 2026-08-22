@@ -6,13 +6,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "studio:dev": "npm run dev --prefix studio",
+    "studio:deploy": "npm run deploy --prefix studio",
+    "typegen": "npm run typegen --prefix studio"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.8.0",
+    "@sanity/image-url": "^2.1.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.33.0",
     "next": "16.3.2",
+    "next-sanity": "^13.3.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tailwind-merge": "^3.6.0"

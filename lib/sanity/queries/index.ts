@@ -1,0 +1,16 @@
+export {
+  CATEGORIES_QUERY,
+  CATEGORY_BY_SLUG_QUERY,
+  CATEGORY_SLUGS_QUERY,
+} from './categories'
+export {
+  COURSE_BY_SLUG_QUERY,
+  COURSE_SLUGS_QUERY,
+  COURSES_QUERY,
+} from './courses'
+export {
+  INSTRUCTOR_BY_SLUG_QUERY,
+  INSTRUCTOR_SLUGS_QUERY,
+  INSTRUCTORS_QUERY,
+} from './instructors'
+export {LESSON_BY_SLUG_QUERY, LESSON_SLUGS_QUERY} from './lessons'
