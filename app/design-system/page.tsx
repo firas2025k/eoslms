@@ -348,7 +348,7 @@ export default function DesignSystemPage() {
 
         <Section id="navigation" title="13 Navigation">
           <div className="flex flex-col gap-8 overflow-hidden rounded-md border border-neutral-200 bg-white shadow-sm">
-            <Header />
+            <Header activeHref="/courses" />
             <div className="flex flex-col gap-6 px-6 pb-6">
               <Breadcrumbs
                 items={[

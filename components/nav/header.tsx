@@ -1,10 +1,12 @@
 import Link from "next/link";
-import { Bell, Search, User } from "lucide-react";
+import { Bell, Search } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { AuthControls } from "@/components/nav/auth-controls";
 import { cn } from "@/lib/cn";
 
 type HeaderProps = {
   activeHref?: "/courses" | "/my-learning";
+  showSearch?: boolean;
   className?: string;
 };
 
@@ -13,7 +15,11 @@ const links = [
   { href: "/my-learning" as const, label: "My Learning" },
 ];
 
-export function Header({ activeHref = "/courses", className }: HeaderProps) {
+export function Header({
+  activeHref,
+  showSearch = true,
+  className,
+}: HeaderProps) {
   return (
     <header
       className={cn(
@@ -25,13 +31,13 @@ export function Header({ activeHref = "/courses", className }: HeaderProps) {
         <Logo />
         <nav aria-label="Main" className="hidden items-center gap-6 sm:flex">
           {links.map((link) => {
-            const active = link.href === activeHref;
+            const active = activeHref !== undefined && link.href === activeHref;
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "text-body font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 rounded-xs",
+                  "rounded-xs text-body font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400",
                   active
                     ? "text-primary-500"
                     : "text-neutral-500 hover:text-neutral-900",
@@ -45,13 +51,15 @@ export function Header({ activeHref = "/courses", className }: HeaderProps) {
         </nav>
       </div>
       <div className="flex items-center gap-2">
-        <button
-          type="button"
-          aria-label="Search"
-          className="inline-flex size-9 items-center justify-center rounded-sm text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
-        >
-          <Search className="size-5" strokeWidth={2} aria-hidden="true" />
-        </button>
+        {showSearch ? (
+          <button
+            type="button"
+            aria-label="Search"
+            className="inline-flex size-9 items-center justify-center rounded-sm text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+          >
+            <Search className="size-5" strokeWidth={2} aria-hidden="true" />
+          </button>
+        ) : null}
         <button
           type="button"
           aria-label="Notifications"
@@ -59,12 +67,7 @@ export function Header({ activeHref = "/courses", className }: HeaderProps) {
         >
           <Bell className="size-5" strokeWidth={2} aria-hidden="true" />
         </button>
-        <span
-          aria-hidden="true"
-          className="inline-flex size-9 items-center justify-center rounded-full bg-neutral-100 text-neutral-700"
-        >
-          <User className="size-4" strokeWidth={2} />
-        </span>
+        <AuthControls />
       </div>
     </header>
   );

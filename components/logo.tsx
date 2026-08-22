@@ -10,17 +10,17 @@ export function Logo({ className, href = "/" }: LogoProps) {
   const mark = (
     <span className={cn("inline-flex items-center gap-2", className)}>
       <svg
-        width="20"
-        height="18"
-        viewBox="0 0 20 18"
+        width="22"
+        height="20"
+        viewBox="0 0 22 20"
         fill="none"
         aria-hidden="true"
         className="shrink-0 text-primary-500"
       >
-        <path
-          d="M10 18L0.5 1.5H19.5L10 18Z"
-          fill="currentColor"
-        />
+        {/* Three-segment downward triangle mark */}
+        <path d="M11 20L4 8H11L11 20Z" fill="currentColor" opacity="0.55" />
+        <path d="M11 20L18 8H11L11 20Z" fill="currentColor" opacity="0.85" />
+        <path d="M4 8L11 0L18 8H4Z" fill="currentColor" />
       </svg>
       <span className="text-body-lg font-semibold tracking-tight text-neutral-900">
         Vertex
@@ -33,7 +33,10 @@ export function Logo({ className, href = "/" }: LogoProps) {
   }
 
   return (
-    <Link href={href} className="inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 rounded-sm">
+    <Link
+      href={href}
+      className="inline-flex rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
+    >
       {mark}
     </Link>
   );

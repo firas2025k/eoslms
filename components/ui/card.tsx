@@ -1,4 +1,5 @@
-import { BarChart3, Clock, Download, FileText, Layers } from "lucide-react";
+import type { ReactNode } from "react";
+import { BarChart3, Clock, Download, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/cn";
 
@@ -11,6 +12,7 @@ type CourseCardProps = {
   level: string;
   duration: string;
   moduleCount: string;
+  thumbnail?: ReactNode;
   thumbnailLabel?: string;
   className?: string;
 };
@@ -21,16 +23,21 @@ export function CourseCard({
   level,
   duration,
   moduleCount,
+  thumbnail,
   thumbnailLabel = "N",
   className,
 }: CourseCardProps) {
   return (
     <article className={cn(cardShell, "flex flex-col gap-4", className)}>
-      <div className="flex size-14 items-center justify-center rounded-sm bg-neutral-900 text-heading-2 font-semibold text-white">
-        {thumbnailLabel}
-      </div>
+      {thumbnail ?? (
+        <div className="flex size-14 items-center justify-center rounded-sm bg-neutral-900 text-heading-2 font-semibold text-white">
+          {thumbnailLabel}
+        </div>
+      )}
       <div className="flex flex-col gap-2">
-        <h3 className="text-heading-1 font-semibold text-neutral-900">{title}</h3>
+        <h3 className="font-display text-heading-1 font-bold text-neutral-900">
+          {title}
+        </h3>
         <p className="text-body text-neutral-500">{description}</p>
       </div>
       <div className="mt-auto flex flex-wrap items-center gap-4 border-t border-neutral-100 pt-4 text-small text-neutral-500">
@@ -43,7 +50,7 @@ export function CourseCard({
           {duration}
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <Layers className="size-4" strokeWidth={2} aria-hidden="true" />
+          <FileText className="size-4" strokeWidth={2} aria-hidden="true" />
           {moduleCount}
         </span>
       </div>
