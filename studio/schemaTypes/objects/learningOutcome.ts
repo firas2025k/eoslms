@@ -1,6 +1,12 @@
-import {SparklesIcon} from '@sanity/icons'
+import {SparklesIcon} from '@sanity/icons/Sparkles'
 import {defineField, defineType} from 'sanity'
 
+/**
+ * One entry in a course's "What you'll learn" list.
+ *
+ * `icon` is constrained to names the web app already ships from lucide-react, so an author
+ * cannot pick an icon the frontend has no way to render.
+ */
 export const learningOutcome = defineType({
   name: 'learningOutcome',
   title: 'Learning outcome',
@@ -9,29 +15,34 @@ export const learningOutcome = defineType({
   fields: [
     defineField({
       name: 'icon',
-      title: 'Icon',
       type: 'string',
-      description: 'Lucide icon name used by the web UI (e.g. "BookOpen", "Code").',
+      options: {
+        list: [
+          {title: 'Sparkles', value: 'sparkles'},
+          {title: 'Layers', value: 'layers'},
+          {title: 'Code', value: 'code'},
+          {title: 'Rocket', value: 'rocket'},
+          {title: 'Shield', value: 'shield'},
+          {title: 'Gauge', value: 'gauge'},
+          {title: 'Puzzle', value: 'puzzle'},
+          {title: 'Workflow', value: 'workflow'},
+        ],
+      },
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'title',
-      title: 'Title',
       type: 'string',
-      validation: (rule) => rule.required(),
+      validation: (rule) => rule.required().max(60),
     }),
     defineField({
       name: 'description',
-      title: 'Description',
       type: 'text',
       rows: 2,
-      validation: (rule) => rule.required(),
+      validation: (rule) => rule.required().max(160),
     }),
   ],
   preview: {
-    select: {
-      title: 'title',
-      subtitle: 'description',
-    },
+    select: {title: 'title', subtitle: 'description'},
   },
 })

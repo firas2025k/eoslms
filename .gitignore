@@ -22,8 +22,9 @@
 /build
 /studio/dist
 
-# Sanity Studio local cache
+# Sanity Studio local cache / generated extract
 /studio/.sanity
+/studio/schema.json
 
 # misc
 .DS_Store

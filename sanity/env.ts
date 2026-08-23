@@ -6,7 +6,7 @@ function assertValue<T>(v: T | undefined, errorMessage: string): T {
 }
 
 export const apiVersion =
-  process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2025-08-22'
+  process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2026-08-15'
 
 export const dataset = assertValue(
   process.env.NEXT_PUBLIC_SANITY_DATASET,

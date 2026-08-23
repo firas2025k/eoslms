@@ -1,50 +1,52 @@
-import {LinkIcon} from '@sanity/icons'
+import {DocumentPdfIcon} from '@sanity/icons/DocumentPdf'
 import {defineField, defineType} from 'sanity'
 
+/** A downloadable or linked resource attached to a lesson. */
 export const resource = defineType({
   name: 'resource',
   title: 'Resource',
   type: 'object',
-  icon: LinkIcon,
+  icon: DocumentPdfIcon,
   fields: [
     defineField({
       name: 'type',
-      title: 'Type',
       type: 'string',
       options: {
         list: [
           {title: 'PDF', value: 'pdf'},
           {title: 'Link', value: 'link'},
-          {title: 'Repo', value: 'repo'},
-          {title: 'Other', value: 'other'},
+          {title: 'Repository', value: 'repo'},
+          {title: 'Code sample', value: 'code'},
+          {title: 'Slides', value: 'slides'},
         ],
-        layout: 'radio',
       },
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'title',
-      title: 'Title',
       type: 'string',
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'description',
-      title: 'Description',
       type: 'text',
       rows: 2,
+      validation: (rule) => rule.max(160),
     }),
     defineField({
       name: 'url',
-      title: 'URL',
       type: 'url',
-      validation: (rule) => rule.required().uri({scheme: ['http', 'https']}),
+      validation: (rule) =>
+        rule
+          .required()
+          .uri({scheme: ['http', 'https']})
+          .error('Must be a valid URL starting with http:// or https://'),
     }),
   ],
   preview: {
-    select: {
-      title: 'title',
-      subtitle: 'type',
+    select: {title: 'title', type: 'type', url: 'url'},
+    prepare({title, type, url}) {
+      return {title, subtitle: [type?.toUpperCase(), url].filter(Boolean).join(' · ')}
     },
   },
 })

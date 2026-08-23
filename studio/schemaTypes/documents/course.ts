@@ -1,4 +1,4 @@
-import {BookIcon} from '@sanity/icons'
+import {BookIcon} from '@sanity/icons/Book'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
 export const course = defineType({
@@ -6,37 +6,66 @@ export const course = defineType({
   title: 'Course',
   type: 'document',
   icon: BookIcon,
+  groups: [
+    {name: 'overview', title: 'Overview', default: true},
+    {name: 'marketing', title: 'Marketing'},
+    {name: 'curriculum', title: 'Curriculum'},
+  ],
   fields: [
     defineField({
       name: 'title',
-      title: 'Title',
       type: 'string',
+      group: 'overview',
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'slug',
-      title: 'Slug',
       type: 'slug',
+      group: 'overview',
       options: {source: 'title', maxLength: 96},
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'summary',
-      title: 'Summary',
+      description: 'One or two sentences. Shown on course cards.',
       type: 'text',
       rows: 3,
-      validation: (rule) => rule.required(),
+      group: 'overview',
+      validation: (rule) => rule.required().max(200),
     }),
     defineField({
       name: 'coverImage',
-      title: 'Cover image',
       type: 'image',
+      group: 'overview',
       options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alternative text',
+          type: 'string',
+          validation: (rule) => rule.required(),
+        }),
+      ],
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'instructor',
+      type: 'reference',
+      to: [{type: 'instructor'}],
+      group: 'overview',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'category',
+      type: 'reference',
+      to: [{type: 'category'}],
+      group: 'overview',
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'level',
-      title: 'Level',
       type: 'string',
+      group: 'marketing',
       options: {
         list: [
           {title: 'Beginner', value: 'beginner'},
@@ -49,66 +78,46 @@ export const course = defineType({
     }),
     defineField({
       name: 'price',
-      title: 'Price',
+      description: 'In USD. Use 0 for a free course.',
       type: 'number',
-      description: 'Display price in the catalog currency unit.',
+      group: 'marketing',
       validation: (rule) => rule.required().min(0),
     }),
     defineField({
       name: 'popular',
-      title: 'Popular',
+      description: 'Shows a "Popular" badge in the catalog.',
       type: 'boolean',
+      group: 'marketing',
       initialValue: false,
     }),
     defineField({
       name: 'studentCount',
-      title: 'Student count',
+      description: 'Display only.',
       type: 'number',
-      description: 'Display-only enrollment figure.',
+      group: 'marketing',
       validation: (rule) => rule.integer().min(0),
-      initialValue: 0,
     }),
     defineField({
       name: 'learningOutcomes',
-      title: 'Learning outcomes',
+      title: "What you'll learn",
       type: 'array',
       of: [defineArrayMember({type: 'learningOutcome'})],
-    }),
-    defineField({
-      name: 'instructor',
-      title: 'Instructor',
-      type: 'reference',
-      to: [{type: 'instructor'}],
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: 'category',
-      title: 'Category',
-      type: 'reference',
-      to: [{type: 'category'}],
-      validation: (rule) => rule.required(),
+      group: 'marketing',
+      validation: (rule) => rule.max(6),
     }),
     defineField({
       name: 'modules',
-      title: 'Modules',
+      description: 'Ordered. Module numbers in the UI come from this order.',
       type: 'array',
       of: [defineArrayMember({type: 'module'})],
-      validation: (rule) => rule.min(1),
+      group: 'curriculum',
+      validation: (rule) => rule.required().min(1),
     }),
   ],
   preview: {
-    select: {
-      title: 'title',
-      media: 'coverImage',
-      level: 'level',
-      instructorName: 'instructor.name',
-    },
-    prepare({title, media, level, instructorName}) {
-      return {
-        title: title || 'Untitled course',
-        subtitle: [level, instructorName].filter(Boolean).join(' · ') || undefined,
-        media,
-      }
+    select: {title: 'title', media: 'coverImage', level: 'level', instructor: 'instructor.name'},
+    prepare({title, media, level, instructor}) {
+      return {title, media, subtitle: [level, instructor].filter(Boolean).join(' · ')}
     },
   },
 })

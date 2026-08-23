@@ -1,138 +1,143 @@
-import {DocumentTextIcon} from '@sanity/icons'
+import {PlayIcon} from '@sanity/icons/Play'
 import {defineArrayMember, defineField, defineType} from 'sanity'
+
+/**
+ * Playback happens on our own lesson page through the provider's embed, so only providers we
+ * can both ingest transcripts from and embed are accepted.
+ */
+const SUPPORTED_VIDEO_HOSTS = [
+  'youtube.com',
+  'www.youtube.com',
+  'youtu.be',
+  'vimeo.com',
+  'player.vimeo.com',
+  'iframe.mediadelivery.net', // Bunny Stream
+  'video.bunnycdn.com',
+]
 
 export const lesson = defineType({
   name: 'lesson',
   title: 'Lesson',
   type: 'document',
-  icon: DocumentTextIcon,
+  icon: PlayIcon,
+  groups: [
+    {name: 'content', title: 'Content', default: true},
+    {name: 'video', title: 'Video'},
+    {name: 'extras', title: 'Extras'},
+  ],
   fields: [
     defineField({
       name: 'title',
-      title: 'Title',
       type: 'string',
+      group: 'content',
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'slug',
-      title: 'Slug',
       type: 'slug',
+      group: 'content',
       options: {source: 'title', maxLength: 96},
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'videoUrl',
       title: 'Video URL',
+      description: 'A YouTube, Vimeo, or Bunny Stream URL. Played as an embed on the lesson page.',
       type: 'url',
-      description: 'YouTube, Vimeo, or Bunny embed URL.',
-      validation: (rule) => rule.required().uri({scheme: ['http', 'https']}),
+      group: 'video',
+      validation: (rule) =>
+        rule
+          .required()
+          .uri({scheme: ['https']})
+          .custom((value) => {
+            if (!value) return true
+            try {
+              const {hostname} = new URL(value)
+              return (
+                SUPPORTED_VIDEO_HOSTS.includes(hostname) ||
+                'Only YouTube, Vimeo, and Bunny Stream URLs are supported'
+              )
+            } catch {
+              return 'Must be a valid URL'
+            }
+          }),
     }),
     defineField({
-      name: 'poster',
-      title: 'Poster',
+      name: 'thumbnail',
+      description: 'Poster frame shown before playback and on lesson cards.',
       type: 'image',
+      group: 'video',
       options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alternative text',
+          type: 'string',
+          validation: (rule) => rule.required(),
+        }),
+      ],
+      validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'durationMinutes',
-      title: 'Duration (minutes)',
+      name: 'duration',
+      title: 'Duration (seconds)',
+      description: 'Stored in seconds. The site formats it for display.',
       type: 'number',
+      group: 'video',
       validation: (rule) => rule.required().integer().positive(),
     }),
     defineField({
       name: 'freePreview',
-      title: 'Free preview',
+      description: 'Shows a "Free preview" label. This is a badge, not access control.',
       type: 'boolean',
-      description: 'Presentational label only — not access control.',
+      group: 'video',
       initialValue: false,
     }),
     defineField({
       name: 'studentCount',
-      title: 'Student count',
+      description: 'Display only.',
       type: 'number',
-      description: 'Display-only enrollment figure.',
+      group: 'extras',
       validation: (rule) => rule.integer().min(0),
-      initialValue: 0,
     }),
     defineField({
       name: 'notes',
-      title: 'Notes',
-      type: 'array',
-      of: [
-        defineArrayMember({
-          type: 'block',
-          styles: [
-            {title: 'Normal', value: 'normal'},
-            {title: 'H2', value: 'h2'},
-            {title: 'H3', value: 'h3'},
-            {title: 'Quote', value: 'blockquote'},
-          ],
-          lists: [
-            {title: 'Bullet', value: 'bullet'},
-            {title: 'Numbered', value: 'number'},
-          ],
-          marks: {
-            decorators: [
-              {title: 'Strong', value: 'strong'},
-              {title: 'Emphasis', value: 'em'},
-              {title: 'Code', value: 'code'},
-            ],
-            annotations: [
-              {
-                name: 'link',
-                type: 'object',
-                title: 'Link',
-                fields: [
-                  defineField({
-                    name: 'href',
-                    type: 'url',
-                    title: 'URL',
-                    validation: (rule) =>
-                      rule.uri({scheme: ['http', 'https', 'mailto']}),
-                  }),
-                ],
-              },
-            ],
-          },
-        }),
-      ],
+      description: 'The written lesson notes shown beside the video.',
+      type: 'blockContent',
+      group: 'content',
     }),
     defineField({
       name: 'keyPoints',
       title: 'Key points',
+      description: 'The "In this lesson you will" list.',
       type: 'array',
       of: [defineArrayMember({type: 'string'})],
-      description: 'Short list for “In this lesson you will…”.',
+      group: 'content',
+      validation: (rule) => rule.max(6),
     }),
     defineField({
       name: 'proTip',
       title: 'Pro tip',
       type: 'text',
       rows: 3,
+      group: 'extras',
+      validation: (rule) => rule.max(280),
     }),
     defineField({
       name: 'resources',
-      title: 'Resources',
       type: 'array',
       of: [defineArrayMember({type: 'resource'})],
+      group: 'extras',
     }),
   ],
   preview: {
-    select: {
-      title: 'title',
-      media: 'poster',
-      durationMinutes: 'durationMinutes',
-      freePreview: 'freePreview',
-    },
-    prepare({title, media, durationMinutes, freePreview}) {
-      const parts = [
-        durationMinutes != null ? `${durationMinutes} min` : null,
-        freePreview ? 'Free preview' : null,
-      ].filter(Boolean)
+    select: {title: 'title', media: 'thumbnail', duration: 'duration', freePreview: 'freePreview'},
+    prepare({title, media, duration, freePreview}) {
+      const minutes = duration ? `${Math.round(duration / 60)} min` : undefined
       return {
-        title: title || 'Untitled lesson',
-        subtitle: parts.join(' · ') || undefined,
+        title,
         media,
+        subtitle: [minutes, freePreview ? 'Free preview' : undefined].filter(Boolean).join(' · '),
       }
     },
   },
