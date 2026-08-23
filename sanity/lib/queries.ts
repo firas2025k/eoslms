@@ -41,6 +41,8 @@ export const COURSE_BY_SLUG_QUERY = defineQuery(`*[_type == "course" && slug.cur
   price,
   popular,
   studentCount,
+  "moduleCount": count(modules),
+  "duration": math::sum(modules[].lessons[]->duration),
   learningOutcomes[] {
     _key,
     icon,
@@ -65,6 +67,7 @@ export const COURSE_BY_SLUG_QUERY = defineQuery(`*[_type == "course" && slug.cur
     _key,
     title,
     summary,
+    "duration": math::sum(lessons[]->duration),
     lessons[]->{
       _id,
       title,

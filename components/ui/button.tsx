@@ -15,9 +15,31 @@ const sizes = {
   md: "px-3",
 } as const;
 
+type ButtonVariant = keyof typeof variants;
+type ButtonSize = keyof typeof sizes;
+
+export function buttonClassName({
+  variant = "primary",
+  size = "lg",
+  className,
+}: {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  className?: string;
+} = {}) {
+  return cn(
+    "inline-flex h-11 items-center justify-center gap-2 rounded-md text-body font-medium transition-colors",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2",
+    "disabled:pointer-events-none disabled:cursor-not-allowed",
+    variants[variant],
+    variant !== "text" && sizes[size],
+    className,
+  );
+}
+
 type ButtonProps = React.ComponentProps<"button"> & {
-  variant?: keyof typeof variants;
-  size?: keyof typeof sizes;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
 };
 
 export function Button({
@@ -31,14 +53,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={cn(
-        "inline-flex h-11 items-center justify-center gap-2 rounded-md text-body font-medium transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2",
-        "disabled:pointer-events-none disabled:cursor-not-allowed",
-        variants[variant],
-        variant !== "text" && sizes[size],
-        className,
-      )}
+      className={buttonClassName({ variant, size, className })}
       {...props}
     >
       {children}
