@@ -105,8 +105,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const overview = firstNotesParagraph(lesson.notes);
   return {
     title: lesson.title
-      ? `${lesson.title} · ${lesson.course?.title ?? "Vertex"}`
-      : "Lesson · Vertex",
+      ? `${lesson.title} · ${lesson.course?.title ?? "Eos Academy"}`
+      : "Lesson · Eos Academy",
     description: overview ?? undefined,
   };
 }

@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: course.title ? `${course.title} · Vertex` : "Course · Vertex",
+    title: course.title ? `${course.title} · Eos Academy` : "Course · Eos Academy",
     description: course.summary ?? undefined,
   };
 }

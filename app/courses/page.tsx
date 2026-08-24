@@ -6,8 +6,8 @@ import { sanityFetch } from "@/sanity/lib/fetch";
 import { COURSES_LIST_QUERY } from "@/sanity/lib/queries";
 
 export const metadata: Metadata = {
-  title: "All Courses · Vertex",
-  description: "Browse every course on Vertex.",
+  title: "All Courses · Eos Academy",
+  description: "Browse every course on Eos Academy.",
 };
 
 export default async function CoursesPage() {

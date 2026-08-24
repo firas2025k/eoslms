@@ -7,8 +7,8 @@ import {schema} from './schemaTypes'
 import {structure} from './structure'
 
 export default defineConfig({
-  name: 'vertex',
-  title: 'Vertex',
+  name: 'eos-academy',
+  title: 'Eos Academy',
   projectId,
   dataset,
   schema,

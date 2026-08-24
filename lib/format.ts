@@ -44,6 +44,16 @@ export function formatModuleCount(count: number | null | undefined): string {
   return `${count} module${count === 1 ? "" : "s"}`;
 }
 
+/** Format seconds as `mm:ss` (or `h:mm:ss` past one hour) for "Watch from …" labels. */
+export function formatSeconds(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  const mm = String(m).padStart(h > 0 ? 2 : 1, "0");
+  const ss = String(s).padStart(2, "0");
+  return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+}
+
 /** 1-based module and lesson indices → `LESSON 5.1`. */
 export function formatLessonLabel(
   moduleIndex: number,

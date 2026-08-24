@@ -3,7 +3,7 @@ import { ArrowRight, Star } from "lucide-react";
 import { HeroBars } from "@/components/home/hero-bars";
 import { Header } from "@/components/nav/header";
 import { CourseCard } from "@/components/ui/card";
-import { SearchInput } from "@/components/ui/input";
+import { SearchForm } from "@/components/search/search-form";
 import { toCourseCardProps } from "@/lib/course-card";
 import { sanityFetch } from "@/sanity/lib/fetch";
 import { COURSES_LIST_QUERY } from "@/sanity/lib/queries";
@@ -47,7 +47,7 @@ export default async function Home() {
           </h1>
 
           <p className="mt-4 max-w-lg text-body-lg text-neutral-500">
-            Vertex understands what you want to learn and finds the exact
+            Eos Academy understands what you want to learn and finds the exact
             lessons across all your courses.
           </p>
 
@@ -60,7 +60,7 @@ export default async function Home() {
           </Link>
 
           <div className="mt-8 w-full max-w-xl rounded-md shadow-lg">
-            <SearchInput placeholder="Ask anything about your learning..." />
+            <SearchForm placeholder="Ask anything about your learning…" />
           </div>
         </section>
 
