@@ -1,0 +1,13 @@
+import 'server-only'
+
+function assertValue<T>(v: T | undefined, errorMessage: string): T {
+  if (v === undefined || v === '') {
+    throw new Error(errorMessage)
+  }
+  return v
+}
+
+export const token = assertValue(
+  process.env.SANITY_API_READ_TOKEN,
+  'Missing environment variable: SANITY_API_READ_TOKEN',
+)

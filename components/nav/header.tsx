@@ -52,13 +52,13 @@ export function Header({
       </div>
       <div className="flex items-center gap-2">
         {showSearch ? (
-          <button
-            type="button"
+          <Link
+            href="/search"
             aria-label="Search"
             className="inline-flex size-9 items-center justify-center rounded-sm text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
           >
             <Search className="size-5" strokeWidth={2} aria-hidden="true" />
-          </button>
+          </Link>
         ) : null}
         <button
           type="button"

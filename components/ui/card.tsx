@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { BarChart3, Clock, Download, FileText } from "lucide-react";
+import { SanityImage } from "@/components/sanity-image";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/cn";
 
@@ -12,6 +14,10 @@ type CourseCardProps = {
   level: string;
   duration: string;
   moduleCount: string;
+  href?: string;
+  coverSrc?: string | null;
+  coverAlt?: string;
+  coverBlurDataURL?: string | null;
   thumbnail?: ReactNode;
   thumbnailLabel?: string;
   className?: string;
@@ -23,17 +29,37 @@ export function CourseCard({
   level,
   duration,
   moduleCount,
+  href,
+  coverSrc,
+  coverAlt,
+  coverBlurDataURL,
   thumbnail,
   thumbnailLabel = "N",
   className,
 }: CourseCardProps) {
-  return (
-    <article className={cn(cardShell, "flex flex-col gap-4", className)}>
-      {thumbnail ?? (
-        <div className="flex size-14 items-center justify-center rounded-sm bg-neutral-900 text-heading-2 font-semibold text-white">
-          {thumbnailLabel}
-        </div>
-      )}
+  const media =
+    thumbnail ??
+    (coverSrc ? (
+      <div className="relative size-14 overflow-hidden rounded-sm bg-neutral-900">
+        <SanityImage
+          src={coverSrc}
+          alt={coverAlt ?? title}
+          fill
+          sizes="56px"
+          className="object-cover"
+          placeholder={coverBlurDataURL ? "blur" : "empty"}
+          blurDataURL={coverBlurDataURL ?? undefined}
+        />
+      </div>
+    ) : (
+      <div className="flex size-14 items-center justify-center rounded-sm bg-neutral-900 text-heading-2 font-semibold text-white">
+        {thumbnailLabel}
+      </div>
+    ));
+
+  const body = (
+    <>
+      {media}
       <div className="flex flex-col gap-2">
         <h3 className="font-display text-heading-1 font-bold text-neutral-900">
           {title}
@@ -54,6 +80,27 @@ export function CourseCard({
           {moduleCount}
         </span>
       </div>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className={cn(
+          cardShell,
+          "flex flex-col gap-4 transition-shadow hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400",
+          className,
+        )}
+      >
+        {body}
+      </Link>
+    );
+  }
+
+  return (
+    <article className={cn(cardShell, "flex flex-col gap-4", className)}>
+      {body}
     </article>
   );
 }

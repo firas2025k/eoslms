@@ -23,7 +23,7 @@ export function Logo({ className, href = "/" }: LogoProps) {
         <path d="M4 8L11 0L18 8H4Z" fill="currentColor" />
       </svg>
       <span className="text-body-lg font-semibold tracking-tight text-neutral-900">
-        Vertex
+        Eos Academy
       </span>
     </span>
   );

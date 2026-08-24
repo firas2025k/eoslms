@@ -15,9 +15,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Vertex",
+  title: "Eos Academy",
   description:
-    "Vertex understands what you want to learn and finds the exact lessons across all your courses.",
+    "Eos Academy understands what you want to learn and finds the exact lessons across all your courses.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

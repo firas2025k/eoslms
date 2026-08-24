@@ -1,46 +1,29 @@
 import Link from "next/link";
 import { ArrowRight, Star } from "lucide-react";
-import {
-  DockerMark,
-  NextjsMark,
-  TypescriptMark,
-} from "@/components/home/course-marks";
 import { HeroBars } from "@/components/home/hero-bars";
 import { Header } from "@/components/nav/header";
 import { CourseCard } from "@/components/ui/card";
-import { SearchInput } from "@/components/ui/input";
+import { SearchForm } from "@/components/search/search-form";
+import { toCourseCardProps } from "@/lib/course-card";
+import { sanityFetch } from "@/sanity/lib/fetch";
+import { COURSES_LIST_QUERY } from "@/sanity/lib/queries";
+import type { COURSES_LIST_QUERY_RESULT } from "@/sanity.types";
 
-const courses = [
-  {
-    title: "Next.js for Production",
-    description:
-      "Build and ship production-ready Next.js apps with App Router, caching, and deployment patterns.",
-    level: "Intermediate",
-    duration: "18h 24m",
-    moduleCount: "12 modules",
-    thumbnail: <NextjsMark />,
-  },
-  {
-    title: "Docker & Containers",
-    description:
-      "Containerize services, manage images, and ship reliable environments with Docker.",
-    level: "Intermediate",
-    duration: "12h 10m",
-    moduleCount: "8 modules",
-    thumbnail: <DockerMark />,
-  },
-  {
-    title: "TypeScript Fundamentals",
-    description:
-      "Add types to JavaScript for safer APIs, clearer refactors, and confident tooling.",
-    level: "Beginner",
-    duration: "9h 45m",
-    moduleCount: "10 modules",
-    thumbnail: <TypescriptMark />,
-  },
-];
+const HOME_COURSE_LIMIT = 3;
 
-export default function Home() {
+function pickHomeCourses(courses: COURSES_LIST_QUERY_RESULT) {
+  return [...courses]
+    .sort((a, b) => Number(Boolean(b.popular)) - Number(Boolean(a.popular)))
+    .slice(0, HOME_COURSE_LIMIT);
+}
+
+export default async function Home() {
+  const allCourses = await sanityFetch({
+    query: COURSES_LIST_QUERY,
+    tags: ["course"],
+  });
+  const courses = pickHomeCourses(allCourses ?? []);
+
   return (
     <div
       className="relative flex min-h-full flex-1 flex-col overflow-hidden"
@@ -64,7 +47,7 @@ export default function Home() {
           </h1>
 
           <p className="mt-4 max-w-lg text-body-lg text-neutral-500">
-            Vertex understands what you want to learn and finds the exact
+            Eos Academy understands what you want to learn and finds the exact
             lessons across all your courses.
           </p>
 
@@ -77,7 +60,7 @@ export default function Home() {
           </Link>
 
           <div className="mt-8 w-full max-w-xl rounded-md shadow-lg">
-            <SearchInput placeholder="Ask anything about your learning..." />
+            <SearchForm placeholder="Ask anything about your learning…" />
           </div>
         </section>
 
@@ -98,11 +81,15 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-            {courses.map((course) => (
-              <CourseCard key={course.title} {...course} />
-            ))}
-          </div>
+          {courses.length > 0 ? (
+            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+              {courses.map((course) => (
+                <CourseCard key={course._id} {...toCourseCardProps(course)} />
+              ))}
+            </div>
+          ) : (
+            <p className="mt-8 text-body text-neutral-500">No courses yet.</p>
+          )}
         </section>
 
         <div className="relative mt-16 flex items-center justify-center gap-3 sm:mt-20">
