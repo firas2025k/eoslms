@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     const raw = result.output ?? { query: trimmedQuery, resultCount: 0, courseCount: 0, results: [] };
     const normalizedResults = raw.results.map(normalizeResult);
 
-    const courseCount = new Set(normalizedResults.map((r) => r.courseName)).size;
+    const courseCount = new Set(normalizedResults.map((r) => r.courseTitle)).size;
 
     const searchResponse = SearchResponseSchema.parse({
       query: raw.query || trimmedQuery,
