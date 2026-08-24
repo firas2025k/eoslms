@@ -43,3 +43,37 @@ export function formatModuleCount(count: number | null | undefined): string {
   if (count == null || count < 0) return "—";
   return `${count} module${count === 1 ? "" : "s"}`;
 }
+
+/** 1-based module and lesson indices → `LESSON 5.1`. */
+export function formatLessonLabel(
+  moduleIndex: number,
+  lessonIndex: number,
+): string {
+  return `LESSON ${moduleIndex}.${lessonIndex}`;
+}
+
+/**
+ * First normal paragraph from Portable Text notes (seed stores the lesson summary there).
+ */
+export function firstNotesParagraph(
+  notes:
+    | Array<{
+        _type: string;
+        style?: string;
+        children?: Array<{ _type?: string; text?: string }> | null;
+      }>
+    | null
+    | undefined,
+): string | null {
+  if (!notes?.length) return null;
+  for (const block of notes) {
+    if (block._type !== "block") continue;
+    if (block.style && block.style !== "normal") continue;
+    const text = (block.children ?? [])
+      .map((child) => child.text ?? "")
+      .join("")
+      .trim();
+    if (text) return text;
+  }
+  return null;
+}

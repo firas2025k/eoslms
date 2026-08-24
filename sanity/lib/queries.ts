@@ -83,6 +83,12 @@ export const LESSON_SLUGS_QUERY = defineQuery(`*[_type == "lesson" && defined(sl
   "slug": slug.current
 }`)
 
+/** Course slug + lesson slug pairs for generateStaticParams on the nested lesson route. */
+export const LESSON_STATIC_PARAMS_QUERY = defineQuery(`*[_type == "course" && defined(slug.current)] {
+  "slug": slug.current,
+  "lessonSlugs": modules[].lessons[]->slug.current
+}`)
+
 export const LESSON_BY_SLUG_QUERY = defineQuery(`*[_type == "lesson" && slug.current == $slug][0] {
   _id,
   title,
@@ -106,6 +112,7 @@ export const LESSON_BY_SLUG_QUERY = defineQuery(`*[_type == "lesson" && slug.cur
     _id,
     title,
     "slug": slug.current,
+    level,
     coverImage { ${imageFields} },
     instructor->{
       _id,
@@ -116,6 +123,7 @@ export const LESSON_BY_SLUG_QUERY = defineQuery(`*[_type == "lesson" && slug.cur
     modules[] {
       _key,
       title,
+      "duration": math::sum(lessons[]->duration),
       lessons[]->{
         _id,
         title,
