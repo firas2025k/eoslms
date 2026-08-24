@@ -61,29 +61,7 @@ In the Vercel project settings, go to **Settings → Environment Variables** and
 
 ---
 
-## Step 4 — Add your Vercel domain to Clerk
-
-Clerk blocks requests from unknown origins by default.
-
-1. In your Clerk dashboard, go to **Domains**
-2. Add your Vercel production URL (e.g. `https://eos-lms.vercel.app`)
-3. If you use a custom domain, add that too
-
----
-
-## Step 5 — Add your Vercel domain to Sanity CORS
-
-Sanity blocks cross-origin requests from unknown origins.
-
-1. Go to [sanity.io/manage](https://sanity.io/manage) → your project → **API → CORS Origins**
-2. Click **Add CORS origin**
-3. Add your Vercel URL: `https://eos-lms.vercel.app`
-4. Check **Allow credentials**
-5. Click **Save**
-
----
-
-## Step 6 — Deploy
+## Step 4 — Deploy
 
 Click **Deploy** in the Vercel dashboard. The build runs `next build`. A successful build looks like:
 
@@ -97,10 +75,38 @@ Route (app)                    Size
 └ ...
 ```
 
+Once the deploy finishes, Vercel gives you a URL like `https://eos-lms.vercel.app`. Copy it — you need it for the next two steps.
+
 If the build fails, check the Vercel build logs. The most common causes are:
 
 - A missing environment variable (TypeScript will error on undefined env access)
 - A type error — run `npm run typecheck` locally first to catch these
+
+---
+
+## Step 5 — Add your Vercel domain to Clerk
+
+Clerk blocks sign-in from unknown origins. Do this after deploy so you have the real URL.
+
+1. In your Clerk dashboard, go to **Domains**
+2. Add your Vercel production URL (e.g. `https://eos-lms.vercel.app`)
+3. If you later add a custom domain, add that too
+
+No redeploy needed — Clerk checks are at runtime.
+
+---
+
+## Step 6 — Add your Vercel domain to Sanity CORS
+
+Sanity blocks API requests from unknown origins. Do this after deploy for the same reason.
+
+1. Go to [sanity.io/manage](https://sanity.io/manage) → your project → **API → CORS Origins**
+2. Click **Add CORS origin**
+3. Add your Vercel URL: `https://eos-lms.vercel.app`
+4. Check **Allow credentials**
+5. Click **Save**
+
+No redeploy needed — CORS is checked at request time.
 
 ---
 
