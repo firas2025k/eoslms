@@ -6,14 +6,13 @@ import { cn } from "@/lib/cn";
 
 type CourseProgressBarProps = {
   continueHref: string | null;
-  /** Presentational demo progress until real learner progress exists. */
-  value?: number;
+  value: number;
   className?: string;
 };
 
 export function CourseProgressBar({
   continueHref,
-  value = 35,
+  value,
   className,
 }: CourseProgressBarProps) {
   return (

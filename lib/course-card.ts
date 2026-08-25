@@ -24,7 +24,10 @@ export function courseCoverUrl(course: CourseListItem, size = 112) {
 }
 
 /** Props for `CourseCard` from a COURSES_LIST_QUERY row. */
-export function toCourseCardProps(course: CourseListItem) {
+export function toCourseCardProps(
+  course: CourseListItem,
+  options?: { progress?: number },
+) {
   return {
     href: course.slug ? `/courses/${course.slug}` : undefined,
     title: course.title ?? "Untitled course",
@@ -36,5 +39,6 @@ export function toCourseCardProps(course: CourseListItem) {
     coverAlt: course.coverImage?.alt ?? course.title ?? undefined,
     coverBlurDataURL: course.coverImage?.asset?.metadata?.lqip,
     thumbnailLabel: (course.title ?? "C").charAt(0),
+    progress: options?.progress,
   };
 }

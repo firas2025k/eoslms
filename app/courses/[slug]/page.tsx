@@ -6,6 +6,12 @@ import { LearningOutcomes } from "@/components/course/learning-outcomes";
 import { ModuleList } from "@/components/course/module-list";
 import { Breadcrumbs } from "@/components/nav/breadcrumbs";
 import { Header } from "@/components/nav/header";
+import {
+  coursePercent,
+  flattenCourseLessons,
+  resumeHref,
+} from "@/lib/progress";
+import { getCurrentUserProgress } from "@/lib/progress-server";
 import { sanityFetch } from "@/sanity/lib/fetch";
 import {
   COURSE_BY_SLUG_QUERY,
@@ -63,17 +69,32 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CoursePage({ params }: PageProps) {
   const { slug } = await params;
-  const course = await sanityFetch({
-    query: COURSE_BY_SLUG_QUERY,
-    params: { slug },
-    tags: ["course", `course:${slug}`],
-  });
+  const [course, progress] = await Promise.all([
+    sanityFetch({
+      query: COURSE_BY_SLUG_QUERY,
+      params: { slug },
+      tags: ["course", `course:${slug}`],
+    }),
+    getCurrentUserProgress(),
+  ]);
 
   if (!course?.slug) {
     notFound();
   }
 
-  const continueHref = firstLessonHref(course.slug, course.modules);
+  const lessons = flattenCourseLessons(course.modules);
+  const continueHref =
+    resumeHref({
+      courseSlug: course.slug,
+      lessons,
+      lastLessonId: progress.lastLessonId,
+      lastPositionSeconds: progress.lastPositionSeconds,
+      completedIds: progress.completedLessonIds,
+    }) ?? firstLessonHref(course.slug, course.modules);
+  const percent = coursePercent(
+    progress.completedLessonIds,
+    lessons.map((lesson) => lesson.id),
+  );
 
   return (
     <div
@@ -112,11 +133,12 @@ export default async function CoursePage({ params }: PageProps) {
           modules={course.modules}
           moduleCount={course.moduleCount}
           totalDuration={course.duration}
+          completedLessonIds={progress.completedLessonIds}
           className="mt-12 sm:mt-14"
         />
       </main>
 
-      <CourseProgressBar continueHref={continueHref} />
+      <CourseProgressBar continueHref={continueHref} value={percent} />
     </div>
   );
 }

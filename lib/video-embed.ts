@@ -10,6 +10,13 @@ export type VideoEmbed = {
   embedUrl: string;
 };
 
+export type VideoEmbedOptions = {
+  /** Enable the YouTube IFrame API so we can read currentTime (signed-in resume). */
+  youtubeJsApi?: boolean;
+  /** Required by YouTube when enablejsapi=1. */
+  origin?: string | null;
+};
+
 const YOUTUBE_HOSTS = new Set([
   "youtube.com",
   "www.youtube.com",
@@ -68,6 +75,7 @@ function vimeoIdFromUrl(url: URL): string | null {
 export function getVideoEmbed(
   videoUrl: string | null | undefined,
   startSeconds?: number | null,
+  options?: VideoEmbedOptions,
 ): VideoEmbed | null {
   if (!videoUrl) return null;
 
@@ -89,6 +97,12 @@ export function getVideoEmbed(
     embed.searchParams.set("rel", "0");
     if (start != null && start > 0) {
       embed.searchParams.set("start", String(start));
+    }
+    if (options?.youtubeJsApi) {
+      embed.searchParams.set("enablejsapi", "1");
+      if (options.origin) {
+        embed.searchParams.set("origin", options.origin);
+      }
     }
     return { provider: "youtube", embedUrl: embed.toString() };
   }

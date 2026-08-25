@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, CheckCircle2 } from "lucide-react";
 import { formatDuration, formatModuleCount } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import type { COURSE_BY_SLUG_QUERY_RESULT } from "@/sanity.types";
@@ -18,6 +18,7 @@ type ModuleListProps = {
   moduleCount: number | null | undefined;
   totalDuration: number | null | undefined;
   className?: string;
+  completedLessonIds?: string[];
 };
 
 export function ModuleList({
@@ -26,6 +27,7 @@ export function ModuleList({
   moduleCount,
   totalDuration,
   className,
+  completedLessonIds = [],
 }: ModuleListProps) {
   const list = modules ?? [];
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(() => new Set());
@@ -124,23 +126,33 @@ export function ModuleList({
                       lesson.slug != null
                         ? `/courses/${courseSlug}/lessons/${lesson.slug}`
                         : null;
+                    const completed = completedLessonIds.includes(lesson._id);
                     return (
                       <li
                         key={lesson._id}
                         className="flex items-center justify-between gap-3 border-b border-neutral-100 py-3 last:border-b-0"
                       >
-                        {href && lesson.title ? (
-                          <Link
-                            href={href}
-                            className="min-w-0 text-body font-medium text-neutral-900 hover:text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 rounded-xs"
-                          >
-                            {lesson.title}
-                          </Link>
-                        ) : (
-                          <span className="min-w-0 text-body font-medium text-neutral-900">
-                            {lesson.title}
-                          </span>
-                        )}
+                        <span className="flex min-w-0 items-center gap-2">
+                          {completed ? (
+                            <CheckCircle2
+                              className="size-4 shrink-0 text-success"
+                              strokeWidth={2}
+                              aria-hidden="true"
+                            />
+                          ) : null}
+                          {href && lesson.title ? (
+                            <Link
+                              href={href}
+                              className="min-w-0 text-body font-medium text-neutral-900 hover:text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 rounded-xs"
+                            >
+                              {lesson.title}
+                            </Link>
+                          ) : (
+                            <span className="min-w-0 text-body font-medium text-neutral-900">
+                              {lesson.title}
+                            </span>
+                          )}
+                        </span>
                         <span className="shrink-0 text-small text-neutral-500">
                           {formatDuration(lesson.duration)}
                         </span>

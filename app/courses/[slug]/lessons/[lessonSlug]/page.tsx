@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 import { LessonHeader } from "@/components/lesson/lesson-header";
 import { LessonNav, type LessonNavItem } from "@/components/lesson/lesson-nav";
 import { LessonPlayer } from "@/components/lesson/lesson-player";
+import { LessonProgressSync } from "@/components/lesson/lesson-progress-sync";
 import { LessonSidebar } from "@/components/lesson/lesson-sidebar";
 import { LessonTabs } from "@/components/lesson/lesson-tabs";
 import { Breadcrumbs } from "@/components/nav/breadcrumbs";
 import { Header } from "@/components/nav/header";
 import { firstNotesParagraph } from "@/lib/format";
+import {
+  coursePercent,
+  flattenCourseLessons,
+} from "@/lib/progress";
+import { getCurrentUserProgress } from "@/lib/progress-server";
+import { requestOrigin } from "@/lib/request-origin";
+import { getVideoEmbed } from "@/lib/video-embed";
 import { sanityFetch } from "@/sanity/lib/fetch";
 import {
   LESSON_BY_SLUG_QUERY,
@@ -114,13 +123,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function LessonPage({ params, searchParams }: PageProps) {
   const { slug: courseSlug, lessonSlug } = await params;
   const { t } = await searchParams;
-  const startSeconds = parseStartSeconds(t);
+  const queryStart = parseStartSeconds(t);
 
-  const lesson = await sanityFetch({
-    query: LESSON_BY_SLUG_QUERY,
-    params: { slug: lessonSlug },
-    tags: ["lesson", `lesson:${lessonSlug}`, "course", `course:${courseSlug}`],
-  });
+  const [{ isAuthenticated }, lesson, progress, origin] = await Promise.all([
+    auth(),
+    sanityFetch({
+      query: LESSON_BY_SLUG_QUERY,
+      params: { slug: lessonSlug },
+      tags: ["lesson", `lesson:${lessonSlug}`, "course", `course:${courseSlug}`],
+    }),
+    getCurrentUserProgress(),
+    requestOrigin(),
+  ]);
 
   if (!lesson?.slug || !lesson.course?.slug || lesson.course.slug !== courseSlug) {
     notFound();
@@ -138,6 +152,27 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
   const next = toNavItem(flat[currentIndex + 1], courseSlug);
   const overview = firstNotesParagraph(lesson.notes);
   const title = lesson.title ?? "Lesson";
+  const percent = coursePercent(
+    progress.completedLessonIds,
+    flattenCourseLessons(course.modules).map((item) => item.id),
+  );
+  const storedStart =
+    progress.lastLessonId === lesson._id &&
+    progress.lastPositionSeconds != null &&
+    progress.lastPositionSeconds > 0
+      ? progress.lastPositionSeconds
+      : null;
+  const startSeconds = queryStart ?? storedStart;
+  const trackYoutube =
+    isAuthenticated && getVideoEmbed(lesson.videoUrl)?.provider === "youtube";
+  const sidebar = {
+    course,
+    courseSlug,
+    currentLessonSlug: lesson.slug,
+    currentModuleKey: current.moduleKey,
+    progressPercent: percent,
+    completedLessonIds: progress.completedLessonIds,
+  } as const;
 
   return (
     <div
@@ -158,12 +193,7 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 gap-8 px-6 pb-32 pt-6 lg:gap-10 lg:pt-8">
         <div className="hidden w-72 shrink-0 lg:block xl:w-80">
           <div className="sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto pr-1">
-            <LessonSidebar
-              course={course}
-              courseSlug={courseSlug}
-              currentLessonSlug={lesson.slug}
-              currentModuleKey={current.moduleKey}
-            />
+            <LessonSidebar {...sidebar} />
           </div>
         </div>
 
@@ -173,12 +203,7 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
               Course content
             </summary>
             <div className="border-t border-neutral-100 px-4 py-4">
-              <LessonSidebar
-                course={course}
-                courseSlug={courseSlug}
-                currentLessonSlug={lesson.slug}
-                currentModuleKey={current.moduleKey}
-              />
+              <LessonSidebar {...sidebar} />
             </div>
           </details>
 
@@ -208,6 +233,9 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
             title={title}
             startSeconds={startSeconds}
             thumbnail={lesson.thumbnail}
+            trackProgress={isAuthenticated}
+            lessonId={lesson._id}
+            origin={origin}
           />
 
           <LessonTabs
@@ -221,7 +249,15 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
         </main>
       </div>
 
-      <LessonNav previous={previous} next={next} />
+      {isAuthenticated ? (
+        <LessonProgressSync lessonId={lesson._id} trackYoutube={trackYoutube} />
+      ) : null}
+
+      <LessonNav
+        previous={previous}
+        next={next}
+        completeLessonId={isAuthenticated ? lesson._id : null}
+      />
     </div>
   );
 }

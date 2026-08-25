@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ChevronDown, Circle, Play } from "lucide-react";
+import { ArrowLeft, ChevronDown, CheckCircle2, Circle, Play } from "lucide-react";
 import { CourseCoverThumb } from "@/components/lesson/course-cover-thumb";
 import { Progress } from "@/components/ui/progress";
 import { formatDuration } from "@/lib/format";
@@ -18,6 +18,8 @@ type LessonSidebarProps = {
   currentLessonSlug: string;
   currentModuleKey: string;
   className?: string;
+  progressPercent?: number;
+  completedLessonIds?: string[];
 };
 
 export function LessonSidebar({
@@ -26,6 +28,8 @@ export function LessonSidebar({
   currentLessonSlug,
   currentModuleKey,
   className,
+  progressPercent = 0,
+  completedLessonIds = [],
 }: LessonSidebarProps) {
   const modules = course.modules ?? [];
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(
@@ -58,7 +62,7 @@ export function LessonSidebar({
             <p className="font-display text-heading-3 font-bold text-neutral-900 leading-snug">
               {course.title ?? "Course"}
             </p>
-            <Progress value={35} className="mt-3" />
+            <Progress value={progressPercent} className="mt-3" />
           </div>
         </div>
       </div>
@@ -73,6 +77,7 @@ export function LessonSidebar({
             currentLessonSlug={currentLessonSlug}
             open={expandedKeys.has(mod._key)}
             onToggle={() => toggleModule(mod._key)}
+            completedLessonIds={completedLessonIds}
           />
         ))}
       </nav>
@@ -87,6 +92,7 @@ function ModuleRow({
   currentLessonSlug,
   open,
   onToggle,
+  completedLessonIds,
 }: {
   mod: Module;
   moduleNumber: number;
@@ -94,6 +100,7 @@ function ModuleRow({
   currentLessonSlug: string;
   open: boolean;
   onToggle: () => void;
+  completedLessonIds: string[];
 }) {
   const lessons = mod.lessons ?? [];
   const hasCurrent = lessons.some((l) => l.slug === currentLessonSlug);
@@ -151,6 +158,7 @@ function ModuleRow({
         <ul id={panelId} role="region" aria-labelledby={buttonId} className="pb-2 pl-4 pr-2">
           {lessons.map((lesson) => {
             const isCurrent = lesson.slug === currentLessonSlug;
+            const isCompleted = completedLessonIds.includes(lesson._id);
             const href =
               lesson.slug != null
                 ? `/courses/${courseSlug}/lessons/${lesson.slug}`
@@ -163,6 +171,12 @@ function ModuleRow({
                     <Play
                       className="size-4 fill-primary-500 text-primary-500"
                       strokeWidth={0}
+                      aria-hidden="true"
+                    />
+                  ) : isCompleted ? (
+                    <CheckCircle2
+                      className="size-4 text-success"
+                      strokeWidth={2}
                       aria-hidden="true"
                     />
                   ) : (

@@ -106,6 +106,22 @@ export type Module = {
   >;
 };
 
+export type Progress = {
+  _id: string;
+  _type: "progress";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  clerkUserId?: string;
+  completedLessons?: Array<
+    {
+      _key: string;
+    } & LessonReference
+  >;
+  lastLesson?: LessonReference;
+  lastPositionSeconds?: number;
+};
+
 export type Video = {
   _id: string;
   _type: "video";
@@ -366,6 +382,7 @@ export type AllSanitySchemaTypes =
   | LearningOutcome
   | LessonReference
   | Module
+  | Progress
   | Video
   | Lesson
   | SanityImageCrop
@@ -387,7 +404,7 @@ export type AllSanitySchemaTypes =
 
 // Source: ../sanity/lib/queries.ts
 // Variable: COURSES_LIST_QUERY
-// Query: *[_type == "course"] | order(title asc) {  _id,  title,  "slug": slug.current,  summary,  coverImage {   asset->{    _id,    url,    metadata { lqip, dimensions }  },  hotspot,  crop,  alt },  level,  price,  popular,  studentCount,  "moduleCount": count(modules),  "duration": math::sum(modules[].lessons[]->duration),  "instructorName": instructor->name,  "categoryTitle": category->title}
+// Query: *[_type == "course"] | order(title asc) {  _id,  title,  "slug": slug.current,  summary,  coverImage {   asset->{    _id,    url,    metadata { lqip, dimensions }  },  hotspot,  crop,  alt },  level,  price,  popular,  studentCount,  "moduleCount": count(modules),  "duration": math::sum(modules[].lessons[]->duration),  "lessonIds": modules[].lessons[]._ref,  "instructorName": instructor->name,  "categoryTitle": category->title}
 export type COURSES_LIST_QUERY_RESULT = Array<{
   _id: string;
   title: string | null;
@@ -412,6 +429,7 @@ export type COURSES_LIST_QUERY_RESULT = Array<{
   studentCount: number | null;
   moduleCount: number | null;
   duration: number | null;
+  lessonIds: Array<string | null> | null;
   instructorName: string | null;
   categoryTitle: string | null;
 }>;
@@ -701,11 +719,25 @@ export type CATEGORIES_LIST_QUERY_RESULT = Array<{
   description: string | null;
 }>;
 
+// Source: ../sanity/lib/queries.ts
+// Variable: LESSON_ID_EXISTS_QUERY
+// Query: *[_type == "lesson" && _id == $id && !(_id in path("drafts.**"))][0]._id
+export type LESSON_ID_EXISTS_QUERY_RESULT = string | null;
+
+// Source: ../sanity/lib/queries.ts
+// Variable: PROGRESS_BY_USER_QUERY
+// Query: *[_type == "progress" && clerkUserId == $userId][0] {    "completedLessonIds": completedLessons[]._ref,    "lastLessonId": lastLesson._ref,    lastPositionSeconds  }
+export type PROGRESS_BY_USER_QUERY_RESULT = {
+  completedLessonIds: Array<string> | null;
+  lastLessonId: string | null;
+  lastPositionSeconds: number | null;
+} | null;
+
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    '*[_type == "course"] | order(title asc) {\n  _id,\n  title,\n  "slug": slug.current,\n  summary,\n  coverImage { \n  asset->{\n    _id,\n    url,\n    metadata { lqip, dimensions }\n  },\n  hotspot,\n  crop,\n  alt\n },\n  level,\n  price,\n  popular,\n  studentCount,\n  "moduleCount": count(modules),\n  "duration": math::sum(modules[].lessons[]->duration),\n  "instructorName": instructor->name,\n  "categoryTitle": category->title\n}': COURSES_LIST_QUERY_RESULT;
+    '*[_type == "course"] | order(title asc) {\n  _id,\n  title,\n  "slug": slug.current,\n  summary,\n  coverImage { \n  asset->{\n    _id,\n    url,\n    metadata { lqip, dimensions }\n  },\n  hotspot,\n  crop,\n  alt\n },\n  level,\n  price,\n  popular,\n  studentCount,\n  "moduleCount": count(modules),\n  "duration": math::sum(modules[].lessons[]->duration),\n  "lessonIds": modules[].lessons[]._ref,\n  "instructorName": instructor->name,\n  "categoryTitle": category->title\n}': COURSES_LIST_QUERY_RESULT;
     '*[_type == "course" && defined(slug.current)] {\n  "slug": slug.current\n}': COURSE_SLUGS_QUERY_RESULT;
     '*[_type == "course" && slug.current == $slug][0] {\n  _id,\n  title,\n  "slug": slug.current,\n  summary,\n  coverImage { \n  asset->{\n    _id,\n    url,\n    metadata { lqip, dimensions }\n  },\n  hotspot,\n  crop,\n  alt\n },\n  level,\n  price,\n  popular,\n  studentCount,\n  "moduleCount": count(modules),\n  "duration": math::sum(modules[].lessons[]->duration),\n  learningOutcomes[] {\n    _key,\n    icon,\n    title,\n    description\n  },\n  instructor->{\n    _id,\n    name,\n    "slug": slug.current,\n    photo { \n  asset->{\n    _id,\n    url,\n    metadata { lqip, dimensions }\n  },\n  hotspot,\n  crop,\n  alt\n },\n    expertise,\n    bio\n  },\n  category->{\n    _id,\n    title,\n    "slug": slug.current,\n    description\n  },\n  modules[] {\n    _key,\n    title,\n    summary,\n    "duration": math::sum(lessons[]->duration),\n    lessons[]->{\n      _id,\n      title,\n      "slug": slug.current,\n      duration,\n      freePreview,\n      thumbnail { \n  asset->{\n    _id,\n    url,\n    metadata { lqip, dimensions }\n  },\n  hotspot,\n  crop,\n  alt\n }\n    }\n  }\n}': COURSE_BY_SLUG_QUERY_RESULT;
     '*[_type == "lesson" && defined(slug.current)] {\n  "slug": slug.current\n}': LESSON_SLUGS_QUERY_RESULT;
@@ -714,5 +746,7 @@ declare module "@sanity/client" {
     '*[_type == "instructor"] | order(name asc) {\n  _id,\n  name,\n  "slug": slug.current,\n  photo { \n  asset->{\n    _id,\n    url,\n    metadata { lqip, dimensions }\n  },\n  hotspot,\n  crop,\n  alt\n },\n  expertise\n}': INSTRUCTORS_LIST_QUERY_RESULT;
     '*[_type == "instructor" && slug.current == $slug][0] {\n  _id,\n  name,\n  "slug": slug.current,\n  photo { \n  asset->{\n    _id,\n    url,\n    metadata { lqip, dimensions }\n  },\n  hotspot,\n  crop,\n  alt\n },\n  expertise,\n  bio,\n  "courses": *[_type == "course" && instructor._ref == ^._id] | order(title asc) {\n    _id,\n    title,\n    "slug": slug.current,\n    summary,\n    coverImage { \n  asset->{\n    _id,\n    url,\n    metadata { lqip, dimensions }\n  },\n  hotspot,\n  crop,\n  alt\n },\n    level,\n    price,\n    popular,\n    studentCount,\n    "moduleCount": count(modules),\n    "duration": math::sum(modules[].lessons[]->duration)\n  }\n}': INSTRUCTOR_BY_SLUG_QUERY_RESULT;
     '*[_type == "category"] | order(title asc) {\n  _id,\n  title,\n  "slug": slug.current,\n  description\n}': CATEGORIES_LIST_QUERY_RESULT;
+    '*[_type == "lesson" && _id == $id && !(_id in path("drafts.**"))][0]._id': LESSON_ID_EXISTS_QUERY_RESULT;
+    '*[_type == "progress" && clerkUserId == $userId][0] {\n    "completedLessonIds": completedLessons[]._ref,\n    "lastLessonId": lastLesson._ref,\n    lastPositionSeconds\n  }': PROGRESS_BY_USER_QUERY_RESULT;
   }
 }

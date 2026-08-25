@@ -32,16 +32,6 @@ export function SearchPageClient({ initialQuery }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [response, setResponse] = useState<SearchResponse | null>(null);
 
-  // Run search when initialQuery changes (URL navigation) or on mount if non-empty.
-  const prevQuery = useRef<string | null>(null);
-  useEffect(() => {
-    if (!initialQuery || initialQuery === prevQuery.current) return;
-    prevQuery.current = initialQuery;
-    setQuery(initialQuery);
-    runSearch(initialQuery);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialQuery]);
-
   async function runSearch(q: string) {
     const trimmed = q.trim();
     if (!trimmed) return;
@@ -68,6 +58,15 @@ export function SearchPageClient({ initialQuery }: Props) {
       setLoading(false);
     }
   }
+
+  // Run search when initialQuery changes (URL navigation) or on mount if non-empty.
+  const prevQuery = useRef<string | null>(null);
+  useEffect(() => {
+    if (!initialQuery || initialQuery === prevQuery.current) return;
+    prevQuery.current = initialQuery;
+    setQuery(initialQuery);
+    void runSearch(initialQuery);
+  }, [initialQuery]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

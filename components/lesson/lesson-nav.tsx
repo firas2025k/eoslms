@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { buttonClassName } from "@/components/ui/button";
 import { formatDuration } from "@/lib/format";
+import { saveProgress } from "@/lib/progress-client";
 import { cn } from "@/lib/cn";
 
 export type LessonNavItem = {
@@ -15,9 +19,26 @@ type LessonNavProps = {
   previous: LessonNavItem | null;
   next: LessonNavItem | null;
   className?: string;
+  /** When set, Next (or completing the last lesson) POSTs completed: true first. */
+  completeLessonId?: string | null;
 };
 
-export function LessonNav({ previous, next, className }: LessonNavProps) {
+export function LessonNav({
+  previous,
+  next,
+  className,
+  completeLessonId,
+}: LessonNavProps) {
+  const router = useRouter();
+
+  async function goNext(href: string) {
+    if (completeLessonId) {
+      await saveProgress({ lessonId: completeLessonId, completed: true });
+    }
+    router.push(href);
+    router.refresh();
+  }
+
   return (
     <nav
       aria-label="Lesson navigation"
@@ -67,18 +88,34 @@ export function LessonNav({ previous, next, className }: LessonNavProps) {
                   {formatDuration(next.duration)}
                 </p>
               </div>
-              <Link
-                href={next.href}
-                className={buttonClassName({
-                  variant: "primary",
-                  size: "md",
-                  className: "shrink-0",
-                })}
-              >
-                <span className="hidden sm:inline">Next Lesson</span>
-                <span className="sm:hidden">Next</span>
-                <ArrowRight className="size-4" strokeWidth={2} aria-hidden="true" />
-              </Link>
+              {completeLessonId ? (
+                <button
+                  type="button"
+                  onClick={() => void goNext(next.href)}
+                  className={buttonClassName({
+                    variant: "primary",
+                    size: "md",
+                    className: "shrink-0",
+                  })}
+                >
+                  <span className="hidden sm:inline">Next Lesson</span>
+                  <span className="sm:hidden">Next</span>
+                  <ArrowRight className="size-4" strokeWidth={2} aria-hidden="true" />
+                </button>
+              ) : (
+                <Link
+                  href={next.href}
+                  className={buttonClassName({
+                    variant: "primary",
+                    size: "md",
+                    className: "shrink-0",
+                  })}
+                >
+                  <span className="hidden sm:inline">Next Lesson</span>
+                  <span className="sm:hidden">Next</span>
+                  <ArrowRight className="size-4" strokeWidth={2} aria-hidden="true" />
+                </Link>
+              )}
             </>
           ) : (
             <span className="sr-only">No next lesson</span>

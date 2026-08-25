@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BarChart3, Clock, Download, FileText } from "lucide-react";
 import { SanityImage } from "@/components/sanity-image";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/cn";
 
 const cardShell =
@@ -21,6 +22,8 @@ type CourseCardProps = {
   thumbnail?: ReactNode;
   thumbnailLabel?: string;
   className?: string;
+  /** 0–100 when the signed-in learner has started this course. Omitted otherwise. */
+  progress?: number;
 };
 
 export function CourseCard({
@@ -36,6 +39,7 @@ export function CourseCard({
   thumbnail,
   thumbnailLabel = "N",
   className,
+  progress,
 }: CourseCardProps) {
   const media =
     thumbnail ??
@@ -80,6 +84,9 @@ export function CourseCard({
           {moduleCount}
         </span>
       </div>
+      {progress != null ? (
+        <Progress value={progress} className="-mt-2" />
+      ) : null}
     </>
   );
 

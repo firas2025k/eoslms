@@ -1,4 +1,5 @@
 import { SanityImage } from "@/components/sanity-image";
+import { youtubePlayerElementId } from "@/lib/progress";
 import { getVideoEmbed } from "@/lib/video-embed";
 import { cn } from "@/lib/cn";
 import { urlFor } from "@/sanity/lib/image";
@@ -19,6 +20,10 @@ type LessonPlayerProps = {
   startSeconds?: number | null;
   thumbnail?: Thumbnail;
   className?: string;
+  /** Signed-in YouTube resume tracking — enables the IFrame API on the embed. */
+  trackProgress?: boolean;
+  lessonId?: string;
+  origin?: string | null;
 };
 
 export function LessonPlayer({
@@ -27,8 +32,19 @@ export function LessonPlayer({
   startSeconds,
   thumbnail,
   className,
+  trackProgress = false,
+  lessonId,
+  origin,
 }: LessonPlayerProps) {
-  const embed = getVideoEmbed(videoUrl, startSeconds);
+  const trackYoutube = Boolean(trackProgress && lessonId);
+  const embed = getVideoEmbed(videoUrl, startSeconds, {
+    youtubeJsApi: trackYoutube,
+    origin,
+  });
+  const iframeId =
+    trackYoutube && embed?.provider === "youtube" && lessonId
+      ? youtubePlayerElementId(lessonId)
+      : undefined;
 
   if (embed) {
     return (
@@ -40,6 +56,7 @@ export function LessonPlayer({
       >
         <div className="relative aspect-video w-full">
           <iframe
+            id={iframeId}
             src={embed.embedUrl}
             title={title}
             className="absolute inset-0 h-full w-full border-0"

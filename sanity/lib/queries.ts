@@ -23,6 +23,7 @@ export const COURSES_LIST_QUERY = defineQuery(`*[_type == "course"] | order(titl
   studentCount,
   "moduleCount": count(modules),
   "duration": math::sum(modules[].lessons[]->duration),
+  "lessonIds": modules[].lessons[]._ref,
   "instructorName": instructor->name,
   "categoryTitle": category->title
 }`)
@@ -171,3 +172,15 @@ export const CATEGORIES_LIST_QUERY = defineQuery(`*[_type == "category"] | order
   "slug": slug.current,
   description
 }`)
+
+export const LESSON_ID_EXISTS_QUERY = defineQuery(
+  `*[_type == "lesson" && _id == $id && !(_id in path("drafts.**"))][0]._id`,
+)
+
+export const PROGRESS_BY_USER_QUERY = defineQuery(
+  `*[_type == "progress" && clerkUserId == $userId][0] {
+    "completedLessonIds": completedLessons[]._ref,
+    "lastLessonId": lastLesson._ref,
+    lastPositionSeconds
+  }`,
+)

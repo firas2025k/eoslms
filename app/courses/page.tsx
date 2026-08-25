@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Header } from "@/components/nav/header";
 import { CourseCard } from "@/components/ui/card";
 import { toCourseCardProps } from "@/lib/course-card";
+import { courseHasStarted, coursePercent } from "@/lib/progress";
+import { getCurrentUserProgress } from "@/lib/progress-server";
 import { sanityFetch } from "@/sanity/lib/fetch";
 import { COURSES_LIST_QUERY } from "@/sanity/lib/queries";
 
@@ -11,10 +13,13 @@ export const metadata: Metadata = {
 };
 
 export default async function CoursesPage() {
-  const courses = await sanityFetch({
-    query: COURSES_LIST_QUERY,
-    tags: ["course"],
-  });
+  const [courses, progress] = await Promise.all([
+    sanityFetch({
+      query: COURSES_LIST_QUERY,
+      tags: ["course"],
+    }),
+    getCurrentUserProgress(),
+  ]);
 
   return (
     <div
@@ -46,9 +51,21 @@ export default async function CoursesPage() {
 
         {courses.length > 0 ? (
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {courses.map((course) => (
-              <CourseCard key={course._id} {...toCourseCardProps(course)} />
-            ))}
+            {courses.map((course) => {
+              const lessonIds = course.lessonIds ?? [];
+              const started = courseHasStarted(lessonIds, progress);
+              return (
+                <CourseCard
+                  key={course._id}
+                  {...toCourseCardProps(
+                    course,
+                    started
+                      ? { progress: coursePercent(progress.completedLessonIds, lessonIds) }
+                      : undefined,
+                  )}
+                />
+              );
+            })}
           </div>
         ) : (
           <p className="mt-10 text-body text-neutral-500">No courses yet.</p>
