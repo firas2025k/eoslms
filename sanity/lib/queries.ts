@@ -177,6 +177,10 @@ export const LESSON_ID_EXISTS_QUERY = defineQuery(
   `*[_type == "lesson" && _id == $id && !(_id in path("drafts.**"))][0]._id`,
 )
 
+export const LESSON_VIDEO_URLS_BY_IDS_QUERY = defineQuery(
+  `*[_type == "lesson" && _id in $ids && defined(videoUrl) && !(_id in path("drafts.**"))].videoUrl`,
+)
+
 export const PROGRESS_BY_USER_QUERY = defineQuery(
   `*[_type == "progress" && clerkUserId == $userId][0] {
     "completedLessonIds": completedLessons[]._ref,

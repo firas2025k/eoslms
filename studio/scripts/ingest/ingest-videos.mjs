@@ -1,5 +1,8 @@
 /**
- * Offline video ingestion (AGENTS.md §9).
+ * Offline video ingestion — **batch / seed / recovery only** (AGENTS.md §9).
+ *
+ * Authors publish lessons in Studio; automatic ingest runs via webhook → `/api/ingest/video`
+ * (`lib/ingest/`). Use this script for initial dataset seed or full re-fetch (`--force`).
  *
  * Reads every lesson's video URL from the dataset, and for each unique video fetches the chapter
  * markers and the transcript, splits the transcript into short timestamped chunks, and caches the

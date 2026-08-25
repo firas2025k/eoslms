@@ -5,7 +5,7 @@ import {createClient} from 'next-sanity'
 import {apiVersion, dataset, projectId} from '../env'
 
 /**
- * Server-only Sanity client with a write token. Used exclusively by `/api/progress`.
+ * Server-only Sanity client with a write token. Used by `/api/progress` and video ingest.
  * The token never reaches the browser — this module is guarded by `server-only`.
  */
 export function getWriteClient() {
