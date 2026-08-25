@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import posthog from "posthog-js";
 import { saveProgress } from "@/lib/progress-client";
 import { youtubePlayerElementId } from "@/lib/progress";
 
@@ -126,6 +127,10 @@ export function LessonProgressSync({
                 lessonId,
                 completed: true,
                 positionSeconds: Math.max(0, Math.floor(event.target.getCurrentTime() || 0)),
+              });
+              posthog.capture("lesson_completed", {
+                lesson_id: lessonId,
+                trigger: "video_ended",
               });
             }
           },

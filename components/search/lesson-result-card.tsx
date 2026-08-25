@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import posthog from "posthog-js";
 
 import { Badge } from "@/components/ui/badge";
 import type { LessonResult } from "@/lib/search/schema";
@@ -21,12 +24,22 @@ export function LessonResultCard({ result, className }: Props) {
 
   const lessonHref = `/courses/${courseSlug}/lessons/${lessonSlug}`;
 
+  function handleClick() {
+    posthog.capture("search_result_clicked", {
+      result_kind: "lesson",
+      course_slug: courseSlug,
+      lesson_slug: lessonSlug,
+      module_index: moduleIndex,
+    });
+  }
+
   return (
     <article
       className={cn(
         "flex gap-4 rounded-md border border-neutral-200 bg-white p-5 shadow-sm",
         className,
       )}
+      onClick={handleClick}
     >
       <Link
         href={lessonHref}

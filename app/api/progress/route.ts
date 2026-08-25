@@ -2,6 +2,7 @@ import {auth} from '@clerk/nextjs/server'
 import {NextResponse} from 'next/server'
 import {z} from 'zod'
 
+import {getPostHogClient} from '@/lib/posthog-server'
 import {getWriteClient} from '@/sanity/lib/write-client'
 import {client} from '@/sanity/lib/client'
 import {LESSON_ID_EXISTS_QUERY, PROGRESS_BY_USER_QUERY} from '@/sanity/lib/queries'
@@ -98,6 +99,20 @@ export async function POST(request: Request) {
     {userId},
     {cache: 'no-store'},
   )
+
+  const posthog = getPostHogClient()
+  if (posthog) {
+    posthog.capture({
+      distinctId: userId,
+      event: 'lesson_progress_saved',
+      properties: {
+        lesson_id: lessonId,
+        completed: completed ?? false,
+        position_seconds: positionSeconds ?? null,
+      },
+    })
+    await posthog.flush()
+  }
 
   return NextResponse.json({
     completedLessonIds: (updated?.completedLessonIds ?? []).filter(Boolean),

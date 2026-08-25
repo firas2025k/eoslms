@@ -1,5 +1,7 @@
+import {auth} from "@clerk/nextjs/server";
 import {NextResponse} from "next/server";
 
+import {getPostHogClient} from "@/lib/posthog-server";
 import {runSearch} from "@/lib/search/run-search";
 import {SearchResponseSchema} from "@/lib/search/schema";
 
@@ -28,8 +30,27 @@ export async function POST(request: Request) {
     );
   }
 
+  const {userId} = await auth();
+
   try {
     const searchResponse = SearchResponseSchema.parse(await runSearch(trimmedQuery));
+
+    if (userId) {
+      const posthog = getPostHogClient();
+      if (posthog) {
+        posthog.capture({
+          distinctId: userId,
+          event: "search_performed",
+          properties: {
+            query_length: trimmedQuery.length,
+            result_count: searchResponse.resultCount,
+            course_count: searchResponse.courseCount,
+          },
+        });
+        await posthog.flush();
+      }
+    }
+
     return NextResponse.json(searchResponse);
   } catch (err) {
     console.error("[search] error:", err);

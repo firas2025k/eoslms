@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { Play } from "lucide-react";
+import posthog from "posthog-js";
 
 import { Badge } from "@/components/ui/badge";
 import { formatSeconds } from "@/lib/format";
@@ -26,12 +29,24 @@ export function VideoResultCard({ result, className }: Props) {
   const lessonHref = `/courses/${courseSlug}/lessons/${lessonSlug}?t=${startSeconds}`;
   const watchLabel = `Watch from ${formatSeconds(startSeconds)}`;
 
+  function handleClick() {
+    posthog.capture("search_result_clicked", {
+      result_kind: "video",
+      course_slug: courseSlug,
+      lesson_slug: lessonSlug,
+      module_index: moduleIndex,
+      lesson_index: lessonIndex,
+      start_seconds: startSeconds,
+    });
+  }
+
   return (
     <article
       className={cn(
         "flex gap-4 rounded-md border border-neutral-200 bg-white p-5 shadow-sm",
         className,
       )}
+      onClick={handleClick}
     >
       {/* Thumbnail / video preview */}
       <Link

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import posthog from "posthog-js";
+
 import { Header } from "@/components/nav/header";
 import { SearchInput } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -36,6 +38,8 @@ export function SearchPageClient({ initialQuery }: Props) {
     const trimmed = q.trim();
     if (!trimmed) return;
 
+    posthog.capture("search_submitted", { query_length: trimmed.length });
+
     setLoading(true);
     setError(null);
     setResponse(null);
@@ -50,9 +54,11 @@ export function SearchPageClient({ initialQuery }: Props) {
       if (!res.ok) {
         setError((data as { error?: string }).error ?? "Search failed. Please try again.");
       } else {
-        setResponse(data as SearchResponse);
+        const searchResponse = data as SearchResponse;
+        setResponse(searchResponse);
       }
-    } catch {
+    } catch (err) {
+      posthog.captureException(err);
       setError("Search failed. Please try again.");
     } finally {
       setLoading(false);

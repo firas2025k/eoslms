@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import posthog from "posthog-js";
 import { buttonClassName } from "@/components/ui/button";
 import { formatDuration } from "@/lib/format";
 import { saveProgress } from "@/lib/progress-client";
@@ -34,6 +35,10 @@ export function LessonNav({
   async function goNext(href: string) {
     if (completeLessonId) {
       await saveProgress({ lessonId: completeLessonId, completed: true });
+      posthog.capture("lesson_completed", {
+        lesson_id: completeLessonId,
+        trigger: "next_button",
+      });
     }
     router.push(href);
     router.refresh();

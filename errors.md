@@ -1,8 +1,13 @@
-⨯ upstream image https://cdn.sanity.io/images/en553rqm/production/840cdf77d522e71780791a0a154a6b3cd647df3f-1600x900.jpg?rect=350,0,900,900&w=112&h=112&fit=crop hostname resolved to private IP ["64:ff9b::2295:fa3a"] If this is expected and you understand SSRF risk, use images.dangerouslyAllowLocalIP = true to continue.
-⨯ upstream image https://cdn.sanity.io/images/en553rqm/production/6b4ba53fa9e753dc28e3f5af3ec72b229a4e37b1-1600x900.jpg?rect=350,0,900,900&w=112&h=112&fit=crop hostname resolved to private IP ["64:ff9b::2295:fa3a"] If this is expected and you understand SSRF risk, use images.dangerouslyAllowLocalIP = true to continue.
-⨯ upstream image https://cdn.sanity.io/images/en553rqm/production/de294cb1a61ced562479dfa720f46a957e4c3845-1600x900.jpg?rect=350,0,900,900&w=112&h=112&fit=crop hostname resolved to private IP ["64:ff9b::2295:fa3a"] If this is expected and you understand SSRF risk, use images.dangerouslyAllowLocalIP = true to continue.
- GET /courses/nextjs-app-router-in-depth 200 in 845ms (next.js: 52ms, proxy.ts: 79ms, generate-params: 17ms, application-code: 697ms)
- GET /courses/nextjs-app-router-in-depth 200 in 294ms (next.js: 14ms, proxy.ts: 23ms, generate-params: 0.1ms, application-code: 256ms)
-⨯ upstream image https://cdn.sanity.io/images/en553rqm/production/840cdf77d522e71780791a0a154a6b3cd647df3f-1600x900.jpg?rect=350,0,900,900&w=800&h=800&fit=crop hostname resolved to private IP ["64:ff9b::2295:fa3a"] If this is expected and you understand SSRF risk, use images.dangerouslyAllowLocalIP = true to continue.
-⨯ upstream image https://cdn.sanity.io/images/en553rqm/production/840cdf77d522e71780791a0a154a6b3cd647df3f-1600x900.jpg hostname resolved to private IP ["64:ff9b::2295:fa3a"] If this is expected and you understand SSRF risk, use images.dangerouslyAllowLocalIP = true to continue.
+search] error: Error [AI_NoOutputGeneratedError]: No output generated.
+    at POST (app/api/search/route.ts:77:24)
+  75 |
+  76 |     // Normalise: infer `kind`, remap moduleNumber→moduleIndex, fill defaults.
+> 77 |     const raw = result.output ?? { query: trimmedQuery, resultCount: 0, courseCount: 0, res...
+     |                        ^
+  78 |     const normalizedResults = raw.results.map(normalizeResult);
+  79 |
+  80 |     const courseCount = new Set(normalizedResults.map((r) => r.courseTitle)).size; {
+  cause: undefined
+}
+ POST /api/search 500 in 2.1min (next.js: 1021ms, proxy.ts: 59ms, application-code: 2.1min)
 
