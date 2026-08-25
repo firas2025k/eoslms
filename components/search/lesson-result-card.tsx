@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, FileText } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import type { LessonResult } from "@/lib/search/schema";
@@ -8,8 +8,16 @@ import { cn } from "@/lib/cn";
 type Props = { result: LessonResult; className?: string };
 
 export function LessonResultCard({ result, className }: Props) {
-  const { courseSlug, courseTitle, lessonSlug, lessonTitle, moduleTitle, moduleIndex, description, keyPoints } =
-    result;
+  const {
+    courseSlug,
+    courseTitle,
+    lessonSlug,
+    lessonTitle,
+    moduleTitle,
+    moduleIndex,
+    description,
+    thumbnailUrl,
+  } = result;
 
   const lessonHref = `/courses/${courseSlug}/lessons/${lessonSlug}`;
 
@@ -20,31 +28,37 @@ export function LessonResultCard({ result, className }: Props) {
         className,
       )}
     >
-      {/* Key-points panel */}
-      <div className="hidden shrink-0 overflow-hidden rounded-sm bg-neutral-50 border border-neutral-100 p-3 sm:flex sm:flex-col sm:gap-1.5" style={{ width: 140, minHeight: 90 }}>
-        <FileText className="size-4 text-neutral-400 mb-0.5" strokeWidth={1.5} aria-hidden="true" />
-        {keyPoints.slice(0, 3).map((point, i) => (
-          <p key={i} className="text-small text-neutral-600 leading-tight truncate">
-            {point}
-          </p>
-        ))}
-      </div>
+      <Link
+        href={lessonHref}
+        tabIndex={-1}
+        aria-hidden="true"
+        className="relative hidden shrink-0 overflow-hidden rounded-sm sm:block"
+        style={{ width: 140, height: 90 }}
+      >
+        {thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={thumbnailUrl}
+            alt=""
+            className="h-full w-full object-cover"
+            style={{ background: "#1e293b" }}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-neutral-200" />
+        )}
+      </Link>
 
-      {/* Content */}
       <div className="min-w-0 flex-1">
-        {/* Course row + badge */}
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-small font-medium text-neutral-900">{courseTitle}</span>
           <Badge variant="lesson">LESSON</Badge>
         </div>
 
-        {/* Title + description */}
         <h2 className="mt-1 text-heading-3 font-semibold text-neutral-900 leading-snug">
           {lessonTitle}
         </h2>
         <p className="mt-1 text-body text-neutral-500 line-clamp-2">{description}</p>
 
-        {/* Meta row + action */}
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
           <p className="text-small text-neutral-400">
             Module {moduleIndex}

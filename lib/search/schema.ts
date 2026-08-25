@@ -28,6 +28,7 @@ export const LessonResultSchema = z.object({
   moduleTitle: z.string(),
   moduleIndex: z.number().int().positive(),
   description: z.string(),
+  thumbnailUrl: z.string().nullable().optional(),
   keyPoints: z.array(z.string()).max(3),
 });
 

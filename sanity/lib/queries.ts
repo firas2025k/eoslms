@@ -184,3 +184,76 @@ export const PROGRESS_BY_USER_QUERY = defineQuery(
     lastPositionSeconds
   }`,
 )
+
+const searchLessonProjection = /* groq */ `
+  _id,
+  title,
+  "slug": slug.current,
+  duration,
+  thumbnail { ${imageFields} },
+  keyPoints,
+  notes,
+  videoUrl,
+  "titleTermHits": count($terms[^.title match @]),
+  "notesTermHits": count($terms[pt::text(^.notes) match @]),
+  "keyPointTermHits": count($terms[^.keyPoints[] match @]),
+  "course": *[_type == "course" && references(^._id)][0] {
+    title,
+    "slug": slug.current,
+    coverImage { ${imageFields} },
+    modules[] {
+      title,
+      lessons[]->{ _id }
+    }
+  }
+`
+
+export const SEARCH_LESSONS_QUERY = defineQuery(`*[
+  _type == "lesson"
+  && !(_id in path("drafts.**"))
+  && count($terms[^.title match @ || pt::text(^.notes) match @ || ^.keyPoints[] match @]) > 0
+]{
+  ${searchLessonProjection}
+}`)
+
+export const SEARCH_VIDEO_HITS_QUERY = defineQuery(`*[
+  _type == "video"
+  && (
+    count(chapters[label match $terms]) > 0
+    || count(chunks[text match $terms]) > 0
+  )
+]{
+  url,
+  "chapterHits": chapters[label match $terms][0...3]{
+    startSeconds,
+    label
+  },
+  "chunkHits": chunks[text match $terms][0...3]{
+    startSeconds,
+    text
+  }
+}`)
+
+export const SEARCH_LESSONS_BY_URLS_QUERY = defineQuery(`*[
+  _type == "lesson"
+  && !(_id in path("drafts.**"))
+  && videoUrl in $urls
+]{
+  _id,
+  title,
+  "slug": slug.current,
+  duration,
+  thumbnail { ${imageFields} },
+  keyPoints,
+  notes,
+  videoUrl,
+  "course": *[_type == "course" && references(^._id)][0] {
+    title,
+    "slug": slug.current,
+    coverImage { ${imageFields} },
+    modules[] {
+      title,
+      lessons[]->{ _id }
+    }
+  }
+}`)
