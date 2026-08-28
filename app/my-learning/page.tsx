@@ -4,6 +4,7 @@ import { CourseCard } from "@/components/ui/card";
 import { toCourseCardProps } from "@/lib/course-card";
 import { courseHasStarted, coursePercent } from "@/lib/progress";
 import { getCurrentUserProgress } from "@/lib/progress-server";
+import { redirectIfOnboardingIncomplete } from "@/lib/onboarding-server";
 import { sanityFetch } from "@/sanity/lib/fetch";
 import { COURSES_LIST_QUERY } from "@/sanity/lib/queries";
 import Link from "next/link";
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function MyLearningPage() {
+  await redirectIfOnboardingIncomplete("/my-learning");
   const [courses, progress] = await Promise.all([
     sanityFetch({
       query: COURSES_LIST_QUERY,

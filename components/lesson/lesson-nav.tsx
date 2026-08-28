@@ -22,6 +22,8 @@ type LessonNavProps = {
   className?: string;
   /** When set, Next (or completing the last lesson) POSTs completed: true first. */
   completeLessonId?: string | null;
+  /** Last-lesson destination after Complete course (feedback or course page). */
+  finishHref?: string | null;
 };
 
 export function LessonNav({
@@ -29,6 +31,7 @@ export function LessonNav({
   next,
   className,
   completeLessonId,
+  finishHref,
 }: LessonNavProps) {
   const router = useRouter();
 
@@ -122,6 +125,19 @@ export function LessonNav({
                 </Link>
               )}
             </>
+          ) : finishHref && completeLessonId ? (
+            <button
+              type="button"
+              onClick={() => void goNext(finishHref)}
+              className={buttonClassName({
+                variant: "primary",
+                size: "md",
+                className: "shrink-0",
+              })}
+            >
+              Complete course
+              <ArrowRight className="size-4" strokeWidth={2} aria-hidden="true" />
+            </button>
           ) : (
             <span className="sr-only">No next lesson</span>
           )}

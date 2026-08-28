@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 import { CourseHero } from "@/components/course/course-hero";
 import { CourseProgressBar } from "@/components/course/course-progress-bar";
 import { LearningOutcomes } from "@/components/course/learning-outcomes";
@@ -12,6 +13,10 @@ import {
   resumeHref,
 } from "@/lib/progress";
 import { getCurrentUserProgress } from "@/lib/progress-server";
+import {
+  hasCourseFeedback,
+  isCourseComplete,
+} from "@/lib/onboarding-server";
 import { sanityFetch } from "@/sanity/lib/fetch";
 import {
   COURSE_BY_SLUG_QUERY,
@@ -69,7 +74,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CoursePage({ params }: PageProps) {
   const { slug } = await params;
-  const [course, progress] = await Promise.all([
+  const [{ isAuthenticated, userId }, course, progress] = await Promise.all([
+    auth(),
     sanityFetch({
       query: COURSE_BY_SLUG_QUERY,
       params: { slug },
@@ -95,6 +101,13 @@ export default async function CoursePage({ params }: PageProps) {
     progress.completedLessonIds,
     lessons.map((lesson) => lesson.id),
   );
+  const showFeedback =
+    Boolean(isAuthenticated && userId && course.feedbackEnabled) &&
+    isCourseComplete(
+      progress.completedLessonIds,
+      lessons.map((lesson) => lesson.id),
+    ) &&
+    !(await hasCourseFeedback(userId!, course._id));
 
   return (
     <div
@@ -121,7 +134,12 @@ export default async function CoursePage({ params }: PageProps) {
           ]}
         />
 
-        <CourseHero course={course} continueHref={continueHref} />
+        <CourseHero
+          course={course}
+          continueHref={continueHref}
+          isSignedIn={isAuthenticated}
+          feedbackHref={showFeedback ? `/courses/${course.slug}/feedback` : null}
+        />
 
         <LearningOutcomes
           outcomes={course.learningOutcomes}
@@ -138,7 +156,11 @@ export default async function CoursePage({ params }: PageProps) {
         />
       </main>
 
-      <CourseProgressBar continueHref={continueHref} value={percent} />
+      <CourseProgressBar
+        continueHref={continueHref}
+        isSignedIn={isAuthenticated}
+        value={percent}
+      />
     </div>
   );
 }

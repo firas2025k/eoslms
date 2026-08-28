@@ -11,4 +11,6 @@ export const structure: StructureResolver = (S) =>
       S.divider(),
       S.documentTypeListItem('video').title('Videos (ingested)'),
       S.documentTypeListItem('progress').title('Learner progress'),
+      S.documentTypeListItem('onboarding').title('Onboarding'),
+      S.documentTypeListItem('courseFeedback').title('Course feedback'),
     ])

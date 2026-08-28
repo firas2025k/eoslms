@@ -42,6 +42,7 @@ export const COURSE_BY_SLUG_QUERY = defineQuery(`*[_type == "course" && slug.cur
   price,
   popular,
   studentCount,
+  feedbackEnabled,
   "moduleCount": count(modules),
   "duration": math::sum(modules[].lessons[]->duration),
   learningOutcomes[] {
@@ -114,6 +115,7 @@ export const LESSON_BY_SLUG_QUERY = defineQuery(`*[_type == "lesson" && slug.cur
     title,
     "slug": slug.current,
     level,
+    feedbackEnabled,
     coverImage { ${imageFields} },
     instructor->{
       _id,
@@ -186,6 +188,24 @@ export const PROGRESS_BY_USER_QUERY = defineQuery(
     "completedLessonIds": completedLessons[]._ref,
     "lastLessonId": lastLesson._ref,
     lastPositionSeconds
+  }`,
+)
+
+export const ONBOARDING_BY_USER_QUERY = defineQuery(
+  `*[_type == "onboarding" && clerkUserId == $userId && !(_id in path("drafts.**"))][0]._id`,
+)
+
+export const FEEDBACK_BY_USER_COURSE_QUERY = defineQuery(
+  `*[_type == "courseFeedback" && clerkUserId == $userId && course._ref == $courseId && !(_id in path("drafts.**"))][0]._id`,
+)
+
+export const COURSE_FOR_FEEDBACK_QUERY = defineQuery(
+  `*[_type == "course" && _id == $id && !(_id in path("drafts.**"))][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    feedbackEnabled,
+    "lessonIds": modules[].lessons[]._ref
   }`,
 )
 

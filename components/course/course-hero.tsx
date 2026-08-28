@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, BarChart3, Bookmark, Clock, FileText, Users } from "lucide-react";
+import { ContinueLearningCta } from "@/components/course/continue-learning-cta";
 import { SanityImage } from "@/components/sanity-image";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonClassName } from "@/components/ui/button";
@@ -18,10 +19,18 @@ type Course = NonNullable<COURSE_BY_SLUG_QUERY_RESULT>;
 type CourseHeroProps = {
   course: Course;
   continueHref: string | null;
+  isSignedIn?: boolean;
+  feedbackHref?: string | null;
   className?: string;
 };
 
-export function CourseHero({ course, continueHref, className }: CourseHeroProps) {
+export function CourseHero({
+  course,
+  continueHref,
+  isSignedIn = false,
+  feedbackHref,
+  className,
+}: CourseHeroProps) {
   const assetId = course.coverImage?.asset?._id;
   const coverUrl = assetId
     ? urlFor({
@@ -116,16 +125,25 @@ export function CourseHero({ course, continueHref, className }: CourseHeroProps)
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           {continueHref ? (
-            <Link href={continueHref} className={buttonClassName({ className: "min-w-[12rem]" })}>
-              Continue Learning
-              <ArrowRight className="size-4" strokeWidth={2} aria-hidden="true" />
-            </Link>
+            <ContinueLearningCta
+              href={continueHref}
+              isSignedIn={isSignedIn}
+              className="min-w-[12rem]"
+            />
           ) : (
             <Button disabled className="min-w-[12rem]">
               Continue Learning
               <ArrowRight className="size-4" strokeWidth={2} aria-hidden="true" />
             </Button>
           )}
+          {feedbackHref ? (
+            <Link
+              href={feedbackHref}
+              className={buttonClassName({variant: "secondary"})}
+            >
+              Share feedback
+            </Link>
+          ) : null}
           <Button type="button" variant="tertiary" aria-label="Bookmark course">
             <Bookmark className="size-4" strokeWidth={2} aria-hidden="true" />
             Bookmark

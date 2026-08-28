@@ -1,17 +1,17 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { buttonClassName } from "@/components/ui/button";
+import { ContinueLearningCta } from "@/components/course/continue-learning-cta";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/cn";
 
 type CourseProgressBarProps = {
   continueHref: string | null;
+  isSignedIn?: boolean;
   value: number;
   className?: string;
 };
 
 export function CourseProgressBar({
   continueHref,
+  isSignedIn = false,
   value,
   className,
 }: CourseProgressBarProps) {
@@ -35,13 +35,11 @@ export function CourseProgressBar({
           <Progress value={value} showLabel={false} className="mt-2 max-w-md" />
         </div>
         {continueHref ? (
-          <Link
+          <ContinueLearningCta
             href={continueHref}
-            className={buttonClassName({ className: "w-full shrink-0 sm:w-auto" })}
-          >
-            Continue Learning
-            <ArrowRight className="size-4" strokeWidth={2} aria-hidden="true" />
-          </Link>
+            isSignedIn={isSignedIn}
+            className="w-full shrink-0 sm:w-auto"
+          />
         ) : null}
       </div>
     </div>

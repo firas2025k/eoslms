@@ -4,6 +4,8 @@ import { cn } from "@/lib/cn";
 const fieldClass =
   "h-11 w-full rounded-md border border-neutral-200 bg-white px-4 text-body-lg text-neutral-900 placeholder:text-neutral-500 transition-colors focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-400/30 disabled:cursor-not-allowed disabled:bg-neutral-50 disabled:text-neutral-300";
 
+export { fieldClass };
+
 type InputProps = React.ComponentProps<"input">;
 
 export function Input({ className, ...props }: InputProps) {

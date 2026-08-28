@@ -15,6 +15,10 @@ import {
   flattenCourseLessons,
 } from "@/lib/progress";
 import { getCurrentUserProgress } from "@/lib/progress-server";
+import {
+  hasCourseFeedback,
+  redirectIfOnboardingIncomplete,
+} from "@/lib/onboarding-server";
 import { requestOrigin } from "@/lib/request-origin";
 import { getVideoEmbed } from "@/lib/video-embed";
 import { sanityFetch } from "@/sanity/lib/fetch";
@@ -125,7 +129,7 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
   const { t } = await searchParams;
   const queryStart = parseStartSeconds(t);
 
-  const [{ isAuthenticated }, lesson, progress, origin] = await Promise.all([
+  const [{ isAuthenticated, userId }, lesson, progress, origin] = await Promise.all([
     auth(),
     sanityFetch({
       query: LESSON_BY_SLUG_QUERY,
@@ -140,6 +144,10 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
     notFound();
   }
 
+  await redirectIfOnboardingIncomplete(
+    `/courses/${courseSlug}/lessons/${lessonSlug}`,
+  );
+
   const course = lesson.course;
   const flat = flattenLessons(course);
   const currentIndex = flat.findIndex((item) => item.slug === lesson.slug);
@@ -150,6 +158,18 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
   const current = flat[currentIndex]!;
   const previous = toNavItem(flat[currentIndex - 1], courseSlug);
   const next = toNavItem(flat[currentIndex + 1], courseSlug);
+  const coursePageHref = `/courses/${courseSlug}`;
+  let finishHref: string | null = null;
+  if (isAuthenticated && !next) {
+    const alreadyFeedback =
+      Boolean(course.feedbackEnabled) && userId
+        ? await hasCourseFeedback(userId, course._id)
+        : false;
+    finishHref =
+      course.feedbackEnabled && !alreadyFeedback
+        ? `/courses/${courseSlug}/feedback`
+        : coursePageHref;
+  }
   const overview = firstNotesParagraph(lesson.notes);
   const title = lesson.title ?? "Lesson";
   const percent = coursePercent(
@@ -250,13 +270,18 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
       </div>
 
       {isAuthenticated ? (
-        <LessonProgressSync lessonId={lesson._id} trackYoutube={trackYoutube} />
+        <LessonProgressSync
+          lessonId={lesson._id}
+          trackYoutube={trackYoutube}
+          completeHref={finishHref}
+        />
       ) : null}
 
       <LessonNav
         previous={previous}
         next={next}
         completeLessonId={isAuthenticated ? lesson._id : null}
+        finishHref={finishHref}
       />
     </div>
   );

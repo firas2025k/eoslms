@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
 import { saveProgress } from "@/lib/progress-client";
 import { youtubePlayerElementId } from "@/lib/progress";
@@ -60,6 +61,7 @@ function loadYoutubeApi(): Promise<YTNamespace> {
 type LessonProgressSyncProps = {
   lessonId: string;
   trackYoutube: boolean;
+  completeHref?: string | null;
 };
 
 /**
@@ -69,7 +71,9 @@ type LessonProgressSyncProps = {
 export function LessonProgressSync({
   lessonId,
   trackYoutube,
+  completeHref,
 }: LessonProgressSyncProps) {
+  const router = useRouter();
   const playerRef = useRef<YTPlayer | null>(null);
   const intervalRef = useRef<number | null>(null);
   const lastSentRef = useRef(0);
@@ -127,10 +131,15 @@ export function LessonProgressSync({
                 lessonId,
                 completed: true,
                 positionSeconds: Math.max(0, Math.floor(event.target.getCurrentTime() || 0)),
-              });
-              posthog.capture("lesson_completed", {
-                lesson_id: lessonId,
-                trigger: "video_ended",
+              }).then((ok) => {
+                posthog.capture("lesson_completed", {
+                  lesson_id: lessonId,
+                  trigger: "video_ended",
+                });
+                if (ok && completeHref) {
+                  router.push(completeHref);
+                  router.refresh();
+                }
               });
             }
           },
@@ -156,7 +165,7 @@ export function LessonProgressSync({
       }
       playerRef.current = null;
     };
-  }, [lessonId, trackYoutube]);
+  }, [lessonId, trackYoutube, completeHref, router]);
 
   return null;
 }

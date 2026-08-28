@@ -10,6 +10,7 @@ export const course = defineType({
     {name: 'overview', title: 'Overview', default: true},
     {name: 'marketing', title: 'Marketing'},
     {name: 'curriculum', title: 'Curriculum'},
+    {name: 'learners', title: 'Learners'},
   ],
   fields: [
     defineField({
@@ -112,6 +113,15 @@ export const course = defineType({
       of: [defineArrayMember({type: 'module'})],
       group: 'curriculum',
       validation: (rule) => rule.required().min(1),
+    }),
+    defineField({
+      name: 'feedbackEnabled',
+      title: 'Ask for feedback',
+      description:
+        'After a learner completes every lesson, show a feedback form. Off by default.',
+      type: 'boolean',
+      group: 'learners',
+      initialValue: false,
     }),
   ],
   preview: {
