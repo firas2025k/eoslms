@@ -8,18 +8,20 @@ import { buttonClassName } from "@/components/ui/button";
 type ContinueLearningCtaProps = {
   href: string;
   isSignedIn: boolean;
+  label?: string;
   className?: string;
 };
 
 export function ContinueLearningCta({
   href,
   isSignedIn,
+  label = "Continue Learning",
   className,
 }: ContinueLearningCtaProps) {
   const classes = buttonClassName({className});
-  const label = (
+  const content = (
     <>
-      Continue Learning
+      {label}
       <ArrowRight className="size-4" strokeWidth={2} aria-hidden="true" />
     </>
   );
@@ -27,7 +29,7 @@ export function ContinueLearningCta({
   if (isSignedIn) {
     return (
       <Link href={href} className={classes}>
-        {label}
+        {content}
       </Link>
     );
   }
@@ -39,7 +41,7 @@ export function ContinueLearningCta({
       signUpForceRedirectUrl={href}
     >
       <button type="button" className={classes}>
-        {label}
+        {content}
       </button>
     </SignInButton>
   );

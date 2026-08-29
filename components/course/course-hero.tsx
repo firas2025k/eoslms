@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { ArrowRight, BarChart3, Bookmark, Clock, FileText, Users } from "lucide-react";
 import { ContinueLearningCta } from "@/components/course/continue-learning-cta";
 import { SanityImage } from "@/components/sanity-image";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonClassName } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   formatDuration,
   formatLevel,
@@ -20,7 +19,7 @@ type CourseHeroProps = {
   course: Course;
   continueHref: string | null;
   isSignedIn?: boolean;
-  feedbackHref?: string | null;
+  primaryLabel?: string;
   className?: string;
 };
 
@@ -28,7 +27,7 @@ export function CourseHero({
   course,
   continueHref,
   isSignedIn = false,
-  feedbackHref,
+  primaryLabel = "Continue Learning",
   className,
 }: CourseHeroProps) {
   const assetId = course.coverImage?.asset?._id;
@@ -128,22 +127,15 @@ export function CourseHero({
             <ContinueLearningCta
               href={continueHref}
               isSignedIn={isSignedIn}
+              label={primaryLabel}
               className="min-w-[12rem]"
             />
           ) : (
             <Button disabled className="min-w-[12rem]">
-              Continue Learning
+              {primaryLabel}
               <ArrowRight className="size-4" strokeWidth={2} aria-hidden="true" />
             </Button>
           )}
-          {feedbackHref ? (
-            <Link
-              href={feedbackHref}
-              className={buttonClassName({variant: "secondary"})}
-            >
-              Share feedback
-            </Link>
-          ) : null}
           <Button type="button" variant="tertiary" aria-label="Bookmark course">
             <Bookmark className="size-4" strokeWidth={2} aria-hidden="true" />
             Bookmark

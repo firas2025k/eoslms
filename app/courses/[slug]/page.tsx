@@ -108,6 +108,15 @@ export default async function CoursePage({ params }: PageProps) {
       lessons.map((lesson) => lesson.id),
     ) &&
     !(await hasCourseFeedback(userId!, course._id));
+  const courseComplete = percent === 100;
+  const primaryHref = showFeedback
+    ? `/courses/${course.slug}/feedback`
+    : continueHref;
+  const primaryLabel = showFeedback
+    ? "Share feedback"
+    : courseComplete
+      ? "Review course"
+      : "Continue Learning";
 
   return (
     <div
@@ -136,9 +145,9 @@ export default async function CoursePage({ params }: PageProps) {
 
         <CourseHero
           course={course}
-          continueHref={continueHref}
+          continueHref={primaryHref}
           isSignedIn={isAuthenticated}
-          feedbackHref={showFeedback ? `/courses/${course.slug}/feedback` : null}
+          primaryLabel={primaryLabel}
         />
 
         <LearningOutcomes

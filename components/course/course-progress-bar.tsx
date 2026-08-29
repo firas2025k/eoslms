@@ -34,7 +34,7 @@ export function CourseProgressBar({
           </p>
           <Progress value={value} showLabel={false} className="mt-2 max-w-md" />
         </div>
-        {continueHref ? (
+        {continueHref && value < 100 ? (
           <ContinueLearningCta
             href={continueHref}
             isSignedIn={isSignedIn}
