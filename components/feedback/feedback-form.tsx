@@ -19,10 +19,10 @@ const emptyLikert = Object.fromEntries(
 
 type FeedbackFormProps = {
   courseId: string;
-  courseHref: string;
+  nextHref: string;
 };
 
-export function FeedbackForm({courseId, courseHref}: FeedbackFormProps) {
+export function FeedbackForm({courseId, nextHref}: FeedbackFormProps) {
   const router = useRouter();
   const [ratings, setRatings] = useState<LikertAnswers>(emptyLikert);
   const [whatWouldChange, setWhatWouldChange] = useState("");
@@ -55,7 +55,7 @@ export function FeedbackForm({courseId, courseHref}: FeedbackFormProps) {
         return;
       }
 
-      router.push(courseHref);
+      router.push(nextHref);
       router.refresh();
     } catch {
       setError("Could not save your feedback. Please try again.");

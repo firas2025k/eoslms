@@ -13,6 +13,7 @@ import {
   resumeHref,
 } from "@/lib/progress";
 import { getCurrentUserProgress } from "@/lib/progress-server";
+import {certificatePagePath, isCertificateUnlocked} from "@/lib/certificate";
 import {
   hasCourseFeedback,
   isCourseComplete,
@@ -101,22 +102,36 @@ export default async function CoursePage({ params }: PageProps) {
     progress.completedLessonIds,
     lessons.map((lesson) => lesson.id),
   );
+  const courseComplete = percent === 100;
+  const hasFeedback =
+    Boolean(isAuthenticated && userId && course.feedbackEnabled) &&
+    (await hasCourseFeedback(userId!, course._id));
   const showFeedback =
     Boolean(isAuthenticated && userId && course.feedbackEnabled) &&
     isCourseComplete(
       progress.completedLessonIds,
       lessons.map((lesson) => lesson.id),
     ) &&
-    !(await hasCourseFeedback(userId!, course._id));
-  const courseComplete = percent === 100;
+    !hasFeedback;
+  const showCertificate =
+    Boolean(isAuthenticated) &&
+    isCertificateUnlocked({
+      courseComplete,
+      feedbackEnabled: course.feedbackEnabled === true,
+      hasFeedback,
+    });
   const primaryHref = showFeedback
     ? `/courses/${course.slug}/feedback`
-    : continueHref;
+    : showCertificate
+      ? certificatePagePath(course.slug)
+      : continueHref;
   const primaryLabel = showFeedback
     ? "Share feedback"
-    : courseComplete
-      ? "Review course"
-      : "Continue Learning";
+    : showCertificate
+      ? "Download certificate"
+      : courseComplete
+        ? "Review course"
+        : "Continue Learning";
 
   return (
     <div

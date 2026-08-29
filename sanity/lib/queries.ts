@@ -195,8 +195,25 @@ export const ONBOARDING_BY_USER_QUERY = defineQuery(
   `*[_type == "onboarding" && clerkUserId == $userId && !(_id in path("drafts.**"))][0]._id`,
 )
 
+export const ONBOARDING_NAME_BY_USER_QUERY = defineQuery(
+  `*[_type == "onboarding" && clerkUserId == $userId && !(_id in path("drafts.**"))][0] {
+    fullName
+  }`,
+)
+
 export const FEEDBACK_BY_USER_COURSE_QUERY = defineQuery(
   `*[_type == "courseFeedback" && clerkUserId == $userId && course._ref == $courseId && !(_id in path("drafts.**"))][0]._id`,
+)
+
+export const FEEDBACK_META_BY_USER_COURSE_QUERY = defineQuery(
+  `*[_type == "courseFeedback" && clerkUserId == $userId && course._ref == $courseId && !(_id in path("drafts.**"))][0] {
+    _id,
+    _createdAt
+  }`,
+)
+
+export const PROGRESS_UPDATED_AT_BY_USER_QUERY = defineQuery(
+  `*[_type == "progress" && clerkUserId == $userId][0]._updatedAt`,
 )
 
 export const COURSE_FOR_FEEDBACK_QUERY = defineQuery(

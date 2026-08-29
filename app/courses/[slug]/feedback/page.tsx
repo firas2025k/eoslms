@@ -2,6 +2,7 @@ import {auth} from "@clerk/nextjs/server";
 import {notFound, redirect} from "next/navigation";
 import {Header} from "@/components/nav/header";
 import {FeedbackForm} from "@/components/feedback/feedback-form";
+import {certificatePagePath} from "@/lib/certificate";
 import {
   hasCourseFeedback,
   isCourseComplete,
@@ -50,7 +51,7 @@ export default async function CourseFeedbackPage({params}: PageProps) {
   }
 
   if (await hasCourseFeedback(userId, course._id)) {
-    redirect(courseHref);
+    redirect(certificatePagePath(course.slug));
   }
 
   return (
@@ -83,7 +84,10 @@ export default async function CourseFeedbackPage({params}: PageProps) {
           1 = Strongly Disagree&nbsp;&nbsp;5 = Strongly Agree
         </p>
         <div className="mt-10">
-          <FeedbackForm courseId={course._id} courseHref={courseHref} />
+          <FeedbackForm
+            courseId={course._id}
+            nextHref={certificatePagePath(course.slug)}
+          />
         </div>
       </main>
     </div>

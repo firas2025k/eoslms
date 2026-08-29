@@ -158,7 +158,6 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
   const current = flat[currentIndex]!;
   const previous = toNavItem(flat[currentIndex - 1], courseSlug);
   const next = toNavItem(flat[currentIndex + 1], courseSlug);
-  const coursePageHref = `/courses/${courseSlug}`;
   let finishHref: string | null = null;
   if (isAuthenticated && !next) {
     const alreadyFeedback =
@@ -168,7 +167,7 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
     finishHref =
       course.feedbackEnabled && !alreadyFeedback
         ? `/courses/${courseSlug}/feedback`
-        : coursePageHref;
+        : `/courses/${courseSlug}/certificate`;
   }
   const overview = firstNotesParagraph(lesson.notes);
   const title = lesson.title ?? "Lesson";

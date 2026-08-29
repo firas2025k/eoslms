@@ -10,6 +10,8 @@ const isProtectedRoute = createRouteMatcher([
   '/api/onboarding(.*)',
   '/courses/(.*)/feedback(.*)',
   '/api/feedback(.*)',
+  '/courses/(.*)/certificate(.*)',
+  '/api/certificates(.*)',
 ])
 
 const isOnboardingExempt = createRouteMatcher([

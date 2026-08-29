@@ -790,9 +790,29 @@ export type PROGRESS_BY_USER_QUERY_RESULT = {
 export type ONBOARDING_BY_USER_QUERY_RESULT = string | null;
 
 // Source: ../sanity/lib/queries.ts
+// Variable: ONBOARDING_NAME_BY_USER_QUERY
+// Query: *[_type == "onboarding" && clerkUserId == $userId && !(_id in path("drafts.**"))][0] {    fullName  }
+export type ONBOARDING_NAME_BY_USER_QUERY_RESULT = {
+  fullName: string | null;
+} | null;
+
+// Source: ../sanity/lib/queries.ts
 // Variable: FEEDBACK_BY_USER_COURSE_QUERY
 // Query: *[_type == "courseFeedback" && clerkUserId == $userId && course._ref == $courseId && !(_id in path("drafts.**"))][0]._id
 export type FEEDBACK_BY_USER_COURSE_QUERY_RESULT = string | null;
+
+// Source: ../sanity/lib/queries.ts
+// Variable: FEEDBACK_META_BY_USER_COURSE_QUERY
+// Query: *[_type == "courseFeedback" && clerkUserId == $userId && course._ref == $courseId && !(_id in path("drafts.**"))][0] {    _id,    _createdAt  }
+export type FEEDBACK_META_BY_USER_COURSE_QUERY_RESULT = {
+  _id: string;
+  _createdAt: string;
+} | null;
+
+// Source: ../sanity/lib/queries.ts
+// Variable: PROGRESS_UPDATED_AT_BY_USER_QUERY
+// Query: *[_type == "progress" && clerkUserId == $userId][0]._updatedAt
+export type PROGRESS_UPDATED_AT_BY_USER_QUERY_RESULT = string | null;
 
 // Source: ../sanity/lib/queries.ts
 // Variable: COURSE_FOR_FEEDBACK_QUERY
@@ -938,7 +958,10 @@ declare module "@sanity/client" {
     '*[_type == "lesson" && _id in $ids && defined(videoUrl) && !(_id in path("drafts.**"))].videoUrl': LESSON_VIDEO_URLS_BY_IDS_QUERY_RESULT;
     '*[_type == "progress" && clerkUserId == $userId][0] {\n    "completedLessonIds": completedLessons[]._ref,\n    "lastLessonId": lastLesson._ref,\n    lastPositionSeconds\n  }': PROGRESS_BY_USER_QUERY_RESULT;
     '*[_type == "onboarding" && clerkUserId == $userId && !(_id in path("drafts.**"))][0]._id': ONBOARDING_BY_USER_QUERY_RESULT;
+    '*[_type == "onboarding" && clerkUserId == $userId && !(_id in path("drafts.**"))][0] {\n    fullName\n  }': ONBOARDING_NAME_BY_USER_QUERY_RESULT;
     '*[_type == "courseFeedback" && clerkUserId == $userId && course._ref == $courseId && !(_id in path("drafts.**"))][0]._id': FEEDBACK_BY_USER_COURSE_QUERY_RESULT;
+    '*[_type == "courseFeedback" && clerkUserId == $userId && course._ref == $courseId && !(_id in path("drafts.**"))][0] {\n    _id,\n    _createdAt\n  }': FEEDBACK_META_BY_USER_COURSE_QUERY_RESULT;
+    '*[_type == "progress" && clerkUserId == $userId][0]._updatedAt': PROGRESS_UPDATED_AT_BY_USER_QUERY_RESULT;
     '*[_type == "course" && _id == $id && !(_id in path("drafts.**"))][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    feedbackEnabled,\n    "lessonIds": modules[].lessons[]._ref\n  }': COURSE_FOR_FEEDBACK_QUERY_RESULT;
     '*[\n  _type == "lesson"\n  && !(_id in path("drafts.**"))\n  && count($terms[^.title match @ || pt::text(^.notes) match @ || ^.keyPoints[] match @]) > 0\n]{\n  \n  _id,\n  title,\n  "slug": slug.current,\n  duration,\n  thumbnail { \n  asset->{\n    _id,\n    url,\n    metadata { lqip, dimensions }\n  },\n  hotspot,\n  crop,\n  alt\n },\n  keyPoints,\n  notes,\n  videoUrl,\n  "titleTermHits": count($terms[^.title match @]),\n  "notesTermHits": count($terms[pt::text(^.notes) match @]),\n  "keyPointTermHits": count($terms[^.keyPoints[] match @]),\n  "course": *[_type == "course" && references(^._id)][0] {\n    title,\n    "slug": slug.current,\n    coverImage { \n  asset->{\n    _id,\n    url,\n    metadata { lqip, dimensions }\n  },\n  hotspot,\n  crop,\n  alt\n },\n    modules[] {\n      title,\n      lessons[]->{ _id }\n    }\n  }\n\n}': SEARCH_LESSONS_QUERY_RESULT;
     '*[\n  _type == "video"\n  && (\n    count(chapters[label match $terms]) > 0\n    || count(chunks[text match $terms]) > 0\n  )\n]{\n  url,\n  "chapterHits": chapters[label match $terms][0...3]{\n    startSeconds,\n    label\n  },\n  "chunkHits": chunks[text match $terms][0...3]{\n    startSeconds,\n    text\n  }\n}': SEARCH_VIDEO_HITS_QUERY_RESULT;
