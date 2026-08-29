@@ -2,6 +2,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import { SiteFooter } from "@/components/nav/site-footer";
 import { PostHogIdentity } from "@/components/posthog-identity";
 
 const inter = Inter({
@@ -18,7 +19,7 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Eos Academy",
   description:
-    "Eos Academy understands what you want to learn and finds the exact lessons across all your courses.",
+    "A guided course for mid-career women ready to launch a purpose-driven venture — with education, opportunity, and support.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -30,7 +31,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col font-sans">
         <ClerkProvider>
           <PostHogIdentity />
-          {children}
+          <div className="flex min-h-full flex-1 flex-col">
+            {children}
+            <SiteFooter />
+          </div>
         </ClerkProvider>
       </body>
     </html>

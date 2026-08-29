@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, Star } from "lucide-react";
+import { EosPillars } from "@/components/home/eos-pillars";
 import { HeroBars } from "@/components/home/hero-bars";
+import { WhoItsFor } from "@/components/home/who-its-for";
 import { Header } from "@/components/nav/header";
 import { CourseCard } from "@/components/ui/card";
 import { SearchForm } from "@/components/search/search-form";
@@ -39,38 +41,42 @@ export default async function Home() {
       <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col px-6 pb-8 pt-16 sm:pt-20">
         <section className="mx-auto flex w-full max-w-2xl flex-col items-center text-center">
           <span className="inline-flex items-center rounded-full border border-primary-200 bg-primary-100 px-3 py-1 text-small font-semibold tracking-wide text-primary-500 uppercase">
-            Intelligent Learning
+            Education · Opportunity · Support
           </span>
 
           <h1 className="mt-6 font-display text-display-1 font-bold text-neutral-900">
-            Search your learning in plain English.
+            Begin again with purpose.
           </h1>
 
           <p className="mt-4 max-w-lg text-body-lg text-neutral-500">
-            Eos Academy understands what you want to learn and finds the exact
-            lessons across all your courses.
+            A guided course for mid-career women ready to launch a venture that
+            actually matters — with clarity, not noise.
           </p>
 
           <Link
             href="/courses"
             className="mt-8 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary-500 px-4 text-body font-medium text-white transition-colors hover:bg-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
           >
-            Explore Courses
+            Explore the course
             <ArrowRight className="size-4" strokeWidth={2} aria-hidden="true" />
           </Link>
 
           <div className="mt-8 w-full max-w-xl rounded-md shadow-lg">
-            <SearchForm placeholder="Ask anything about your learning…" />
+            <SearchForm placeholder="Ask anything about your journey…" />
           </div>
         </section>
 
-        <section className="mt-20 sm:mt-24" aria-labelledby="all-courses-heading">
+        <EosPillars className="mt-20 sm:mt-24" />
+
+        <WhoItsFor className="mt-10 sm:mt-12" />
+
+        <section className="mt-20 sm:mt-24" aria-labelledby="start-here-heading">
           <div className="flex items-end justify-between gap-4">
             <h2
-              id="all-courses-heading"
+              id="start-here-heading"
               className="font-display text-display-2 font-bold text-neutral-900"
             >
-              All Courses
+              Start here
             </h2>
             <Link
               href="/courses"
@@ -100,7 +106,7 @@ export default async function Home() {
               strokeWidth={2}
               aria-hidden="true"
             />
-            New courses and lessons added every week.
+            Depth, not hype. Learn at your own pace.
           </p>
           <div className="h-px flex-1 bg-neutral-200" aria-hidden="true" />
         </div>
