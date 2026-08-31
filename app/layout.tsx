@@ -5,6 +5,7 @@ import "./globals.css";
 import { SiteFooter } from "@/components/nav/site-footer";
 import { PostHogIdentity } from "@/components/posthog-identity";
 import { clerkAppearance } from "@/lib/clerk-appearance";
+import { DeploySkewReload } from "@/components/deploy-skew-reload";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col font-sans">
         <ClerkProvider appearance={clerkAppearance}>
+          <DeploySkewReload />
           <PostHogIdentity />
           <div className="flex min-h-full flex-1 flex-col">
             {children}
