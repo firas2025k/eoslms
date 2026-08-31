@@ -4,6 +4,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { SiteFooter } from "@/components/nav/site-footer";
 import { PostHogIdentity } from "@/components/posthog-identity";
+import { clerkAppearance } from "@/lib/clerk-appearance";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
-        <ClerkProvider>
+        <ClerkProvider appearance={clerkAppearance}>
           <PostHogIdentity />
           <div className="flex min-h-full flex-1 flex-col">
             {children}
