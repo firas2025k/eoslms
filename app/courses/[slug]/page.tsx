@@ -8,6 +8,7 @@ import { ModuleList } from "@/components/course/module-list";
 import { Breadcrumbs } from "@/components/nav/breadcrumbs";
 import { Header } from "@/components/nav/header";
 import {
+  courseHasStarted,
   coursePercent,
   flattenCourseLessons,
   resumeHref,
@@ -120,6 +121,10 @@ export default async function CoursePage({ params }: PageProps) {
       feedbackEnabled: course.feedbackEnabled === true,
       hasFeedback,
     });
+  const started = courseHasStarted(
+    lessons.map((lesson) => lesson.id),
+    progress,
+  );
   const primaryHref = showFeedback
     ? `/courses/${course.slug}/feedback`
     : showCertificate
@@ -131,7 +136,10 @@ export default async function CoursePage({ params }: PageProps) {
       ? "Download certificate"
       : courseComplete
         ? "Review course"
-        : "Continue Learning";
+        : isAuthenticated && started
+          ? "Continue Learning"
+          : "Start Learning";
+  const showProgressBar = isAuthenticated && started;
 
   return (
     <div
@@ -149,7 +157,13 @@ export default async function CoursePage({ params }: PageProps) {
         className="relative z-10 bg-white/90 backdrop-blur-sm"
       />
 
-      <main className="relative z-10 mx-auto w-full max-w-5xl flex-1 px-6 pb-36 pt-6 sm:pt-8">
+      <main
+        className={
+          showProgressBar
+            ? "relative z-10 mx-auto w-full max-w-5xl flex-1 px-6 pb-36 pt-6 sm:pt-8"
+            : "relative z-10 mx-auto w-full max-w-5xl flex-1 px-6 pb-16 pt-6 sm:pt-8"
+        }
+      >
         <Breadcrumbs
           className="mb-6"
           items={[
@@ -176,15 +190,18 @@ export default async function CoursePage({ params }: PageProps) {
           moduleCount={course.moduleCount}
           totalDuration={course.duration}
           completedLessonIds={progress.completedLessonIds}
+          isSignedIn={isAuthenticated}
           className="mt-12 sm:mt-14"
         />
       </main>
 
-      <CourseProgressBar
-        continueHref={continueHref}
-        isSignedIn={isAuthenticated}
-        value={percent}
-      />
+      {showProgressBar ? (
+        <CourseProgressBar
+          continueHref={continueHref}
+          isSignedIn={isAuthenticated}
+          value={percent}
+        />
+      ) : null}
     </div>
   );
 }

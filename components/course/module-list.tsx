@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { SignInButton } from "@clerk/nextjs";
 import { ChevronDown, CheckCircle2 } from "lucide-react";
 import { formatDuration, formatModuleCount } from "@/lib/format";
 import { cn } from "@/lib/cn";
@@ -19,6 +20,7 @@ type ModuleListProps = {
   totalDuration: number | null | undefined;
   className?: string;
   completedLessonIds?: string[];
+  isSignedIn?: boolean;
 };
 
 export function ModuleList({
@@ -28,6 +30,7 @@ export function ModuleList({
   totalDuration,
   className,
   completedLessonIds = [],
+  isSignedIn = false,
 }: ModuleListProps) {
   const list = modules ?? [];
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(() => new Set());
@@ -141,12 +144,27 @@ export function ModuleList({
                             />
                           ) : null}
                           {href && lesson.title ? (
-                            <Link
-                              href={href}
-                              className="min-w-0 text-body font-medium text-neutral-900 hover:text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 rounded-xs"
-                            >
-                              {lesson.title}
-                            </Link>
+                            isSignedIn ? (
+                              <Link
+                                href={href}
+                                className="min-w-0 text-body font-medium text-neutral-900 hover:text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 rounded-xs"
+                              >
+                                {lesson.title}
+                              </Link>
+                            ) : (
+                              <SignInButton
+                                mode="modal"
+                                forceRedirectUrl={href}
+                                signUpForceRedirectUrl={href}
+                              >
+                                <button
+                                  type="button"
+                                  className="min-w-0 text-left text-body font-medium text-neutral-900 hover:text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 rounded-xs"
+                                >
+                                  {lesson.title}
+                                </button>
+                              </SignInButton>
+                            )
                           ) : (
                             <span className="min-w-0 text-body font-medium text-neutral-900">
                               {lesson.title}
