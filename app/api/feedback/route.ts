@@ -5,8 +5,13 @@ import {z} from 'zod'
 import {feedbackDocumentId, isSafeSanityId} from '@/lib/forms/ids'
 import {hasCourseFeedback, isCourseComplete} from '@/lib/onboarding-server'
 import {getProgressForUser} from '@/lib/progress-server'
+import {requestOrigin} from '@/lib/request-origin'
+import {sendCertificateReadyEmail} from '@/lib/resend'
 import {client} from '@/sanity/lib/client'
-import {COURSE_FOR_FEEDBACK_QUERY} from '@/sanity/lib/queries'
+import {
+  COURSE_FOR_FEEDBACK_QUERY,
+  ONBOARDING_CONTACT_BY_USER_QUERY,
+} from '@/sanity/lib/queries'
 import {getWriteClient} from '@/sanity/lib/write-client'
 
 const Likert = z.number().int().min(1).max(5)
@@ -87,6 +92,32 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Failed to save feedback', error)
     return NextResponse.json({error: 'Failed to save feedback'}, {status: 500})
+  }
+
+  const [contact, origin] = await Promise.all([
+    client.fetch(
+      ONBOARDING_CONTACT_BY_USER_QUERY,
+      {userId},
+      {cache: 'no-store'},
+    ),
+    requestOrigin(),
+  ])
+  const email = contact?.email?.trim()
+  const fullName = contact?.fullName?.trim()
+  const title = course.title?.trim()
+  const slug = course.slug?.trim()
+  if (email && fullName && title && slug) {
+    await sendCertificateReadyEmail({
+      to: email,
+      fullName,
+      courseTitle: title,
+      courseSlug: slug,
+      origin: origin ?? new URL(request.url).origin,
+      userId,
+      courseId: course._id,
+    })
+  } else {
+    console.error('Skipping certificate email: missing contact or course fields')
   }
 
   return NextResponse.json({alreadySubmitted: false})

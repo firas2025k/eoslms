@@ -201,6 +201,13 @@ export const ONBOARDING_NAME_BY_USER_QUERY = defineQuery(
   }`,
 )
 
+export const ONBOARDING_CONTACT_BY_USER_QUERY = defineQuery(
+  `*[_type == "onboarding" && clerkUserId == $userId && !(_id in path("drafts.**"))][0] {
+    fullName,
+    email
+  }`,
+)
+
 export const FEEDBACK_BY_USER_COURSE_QUERY = defineQuery(
   `*[_type == "courseFeedback" && clerkUserId == $userId && course._ref == $courseId && !(_id in path("drafts.**"))][0]._id`,
 )
@@ -218,6 +225,16 @@ export const PROGRESS_UPDATED_AT_BY_USER_QUERY = defineQuery(
 
 export const COURSE_FOR_FEEDBACK_QUERY = defineQuery(
   `*[_type == "course" && _id == $id && !(_id in path("drafts.**"))][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    feedbackEnabled,
+    "lessonIds": modules[].lessons[]._ref
+  }`,
+)
+
+export const COURSE_FOR_LESSON_QUERY = defineQuery(
+  `*[_type == "course" && references($lessonId) && !(_id in path("drafts.**"))][0] {
     _id,
     title,
     "slug": slug.current,

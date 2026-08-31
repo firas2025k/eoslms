@@ -7,6 +7,8 @@ import {onboardingDocumentId} from '@/lib/forms/ids'
 import {safeNextPath} from '@/lib/forms/paths'
 import {ONBOARDING_STAGE_VALUES} from '@/lib/forms/questions'
 import {hasCompletedOnboarding} from '@/lib/onboarding-server'
+import {requestOrigin} from '@/lib/request-origin'
+import {sendWelcomeEmail} from '@/lib/resend'
 import {getWriteClient} from '@/sanity/lib/write-client'
 
 const OnboardingBodySchema = z
@@ -92,6 +94,14 @@ export async function POST(request: Request) {
     console.error('Failed to save onboarding', error)
     return NextResponse.json({error: 'Failed to save onboarding'}, {status: 500})
   }
+
+  const origin = (await requestOrigin()) ?? new URL(request.url).origin
+  await sendWelcomeEmail({
+    to: parsed.data.email,
+    fullName: parsed.data.fullName,
+    origin,
+    userId,
+  })
 
   return withOnboardingCookie(
     NextResponse.json({alreadySubmitted: false}),

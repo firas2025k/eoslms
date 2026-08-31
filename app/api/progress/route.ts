@@ -3,10 +3,19 @@ import {NextResponse} from 'next/server'
 import {z} from 'zod'
 
 import {getPostHogClient} from '@/lib/posthog-server'
+import {isCourseComplete} from '@/lib/onboarding-server'
+import {progressDocumentId} from '@/lib/progress'
+import {getProgressForUser} from '@/lib/progress-server'
+import {requestOrigin} from '@/lib/request-origin'
+import {sendCertificateReadyEmail} from '@/lib/resend'
 import {getWriteClient} from '@/sanity/lib/write-client'
 import {client} from '@/sanity/lib/client'
-import {LESSON_ID_EXISTS_QUERY, PROGRESS_BY_USER_QUERY} from '@/sanity/lib/queries'
-import {progressDocumentId} from '@/lib/progress'
+import {
+  COURSE_FOR_LESSON_QUERY,
+  LESSON_ID_EXISTS_QUERY,
+  ONBOARDING_CONTACT_BY_USER_QUERY,
+  PROGRESS_BY_USER_QUERY,
+} from '@/sanity/lib/queries'
 
 const SANITY_ID = /^[a-zA-Z0-9._-]+$/
 
@@ -60,6 +69,18 @@ export async function POST(request: Request) {
     return NextResponse.json({error: 'Unknown lesson'}, {status: 400})
   }
 
+  const [previousProgress, courseForLesson] =
+    completed === true
+      ? await Promise.all([
+          getProgressForUser(userId),
+          client.fetch(
+            COURSE_FOR_LESSON_QUERY,
+            {lessonId},
+            {cache: 'no-store'},
+          ),
+        ])
+      : [null, null]
+
   const docId = progressDocumentId(userId)
 
   try {
@@ -112,6 +133,48 @@ export async function POST(request: Request) {
       },
     })
     await posthog.flush()
+  }
+
+  if (
+    completed === true &&
+    courseForLesson?._id &&
+    courseForLesson.feedbackEnabled !== true
+  ) {
+    const wasComplete = isCourseComplete(
+      previousProgress?.completedLessonIds ?? [],
+      courseForLesson.lessonIds,
+    )
+    const nowComplete = isCourseComplete(
+      updated?.completedLessonIds ?? [],
+      courseForLesson.lessonIds,
+    )
+    if (!wasComplete && nowComplete) {
+      const [contact, origin] = await Promise.all([
+        client.fetch(
+          ONBOARDING_CONTACT_BY_USER_QUERY,
+          {userId},
+          {cache: 'no-store'},
+        ),
+        requestOrigin(),
+      ])
+      const email = contact?.email?.trim()
+      const fullName = contact?.fullName?.trim()
+      const title = courseForLesson.title?.trim()
+      const slug = courseForLesson.slug?.trim()
+      if (email && fullName && title && slug) {
+        await sendCertificateReadyEmail({
+          to: email,
+          fullName,
+          courseTitle: title,
+          courseSlug: slug,
+          origin: origin ?? new URL(request.url).origin,
+          userId,
+          courseId: courseForLesson._id,
+        })
+      } else {
+        console.error('Skipping certificate email: missing contact or course fields')
+      }
+    }
   }
 
   return NextResponse.json({
