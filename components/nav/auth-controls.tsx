@@ -7,22 +7,27 @@ export function AuthControls() {
   return (
     <>
       <Show when="signed-out">
-        <SignInButton mode="modal">
-          <Button variant="text" className="h-9 px-2 text-body font-medium">
-            Sign in
-          </Button>
-        </SignInButton>
-        <SignUpButton mode="modal">
-          <Button variant="primary" size="md" className="h-9">
-            Sign up
-          </Button>
-        </SignUpButton>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <SignInButton mode="modal">
+            <Button
+              variant="text"
+              className="h-8 px-1.5 text-small font-medium sm:h-9 sm:px-2 sm:text-body"
+            >
+              Sign in
+            </Button>
+          </SignInButton>
+          <SignUpButton mode="modal">
+            <Button variant="primary" size="md" className="h-8 px-2.5 text-small sm:h-9 sm:px-3 sm:text-body">
+              Sign up
+            </Button>
+          </SignUpButton>
+        </div>
       </Show>
       <Show when="signed-in">
         <UserButton
           appearance={{
             elements: {
-              avatarBox: "size-9",
+              avatarBox: "size-8 sm:size-9",
             },
           }}
         />

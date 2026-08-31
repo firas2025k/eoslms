@@ -1,31 +1,27 @@
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/cn";
 
 type LogoProps = {
   className?: string;
   href?: string;
+  /** Load eagerly in the site header. */
+  priority?: boolean;
 };
 
-export function Logo({ className, href = "/" }: LogoProps) {
+export function Logo({ className, href = "/", priority = false }: LogoProps) {
   const mark = (
-    <span className={cn("inline-flex items-center gap-2", className)}>
-      <svg
-        width="22"
-        height="20"
-        viewBox="0 0 22 20"
-        fill="none"
-        aria-hidden="true"
-        className="shrink-0 text-primary-500"
-      >
-        {/* Three-segment downward triangle mark */}
-        <path d="M11 20L4 8H11L11 20Z" fill="currentColor" opacity="0.55" />
-        <path d="M11 20L18 8H11L11 20Z" fill="currentColor" opacity="0.85" />
-        <path d="M4 8L11 0L18 8H4Z" fill="currentColor" />
-      </svg>
-      <span className="text-body-lg font-semibold tracking-tight text-neutral-900">
-        Eos Academy
-      </span>
-    </span>
+    <Image
+      src="/logo.webp"
+      alt="EOS Academy"
+      width={300}
+      height={89}
+      priority={priority}
+      className={cn(
+        "h-8 w-auto max-w-[8.5rem] object-contain object-left sm:h-9 sm:max-w-[11rem]",
+        className,
+      )}
+    />
   );
 
   if (!href) {
@@ -35,7 +31,7 @@ export function Logo({ className, href = "/" }: LogoProps) {
   return (
     <Link
       href={href}
-      className="inline-flex rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
+      className="inline-flex min-w-0 shrink rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
     >
       {mark}
     </Link>

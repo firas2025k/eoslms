@@ -12,7 +12,7 @@ export function SiteFooter() {
     <footer className="relative z-10 mt-auto border-t border-neutral-200 bg-white">
       <div className="mx-auto grid w-full max-w-5xl gap-10 px-6 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div className="sm:col-span-2 lg:col-span-1">
-          <Logo />
+          <Logo className="h-10 max-w-[12rem] sm:h-11" />
           <p className="mt-3 max-w-xs text-body text-neutral-500">
             Education, Opportunity, and Support for mid-career women building
             purpose-driven ventures.
