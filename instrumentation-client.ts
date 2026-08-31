@@ -1,7 +1,27 @@
 import posthog from "posthog-js";
+import type { CaptureResult } from "posthog-js";
 
 const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+
+// Deployment skew is expected noise, not a bug: a tab on an older build posts a
+// Server Action id a newer build no longer has. DeploySkewReload already recovers
+// the tab, so drop this exception before a routine redeploy opens a new issue.
+function dropDeploySkewException(event: CaptureResult | null): CaptureResult | null {
+  if (event?.event === "$exception") {
+    const list = event.properties?.$exception_list;
+    const isSkew =
+      Array.isArray(list) &&
+      list.some(
+        (item) =>
+          item?.type === "UnrecognizedActionError" ||
+          (typeof item?.value === "string" &&
+            item.value.includes("was not found on the server")),
+      );
+    if (isSkew) return null;
+  }
+  return event;
+}
 
 if (!token) {
   if (process.env.NODE_ENV === "development") {
@@ -17,6 +37,7 @@ if (!token) {
     ui_host: host ?? "https://eu.posthog.com",
     defaults: "2026-01-30",
     capture_exceptions: true,
+    before_send: dropDeploySkewException,
     debug: process.env.NODE_ENV === "development",
   });
 }
